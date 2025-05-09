@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photobook Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-gap: 20px;
+            margin-top: 20px;
+        }
+        .image-grid img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+        .image-grid img:hover {
+            transform: scale(1.04);
+        }
+        .theme-button {
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .theme-button:hover {
+            transform: scale(1.06);
+        }
+        .theme-button.selected {
+            box-shadow: 0 0 5px 2px #4CAF50;
+        }
+        #photobookCanvas {
+            border-radius: 16px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            max-width: 100%;
+            height: auto;
+        }
+        #downloadLink {
+            margin-top: 24px;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        #downloadLink:hover {
+            transform: scale(1.05);
+        }
+
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl p-8">
+        <h1 class="text-3xl font-semibold text-blue-700 text-center mb-8">DIY Photobook Generator</h1>
+        <p class="text-gray-600 text-center mb-6">Upload up to 10 images to create your photobook layout.</p>
+
+        <form id="imageUploadForm" class="mb-8">
+            <div class="mb-6">
+                <label for="images" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-xl shadow-md cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors">
+                    <svg class="h-7 w-7 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-1-11l-5-5m0 0l-5 5m5-5v12"></path></svg>
+                    <span class="text-lg">Upload Images</span>
+                    <input type="file" id="images" name="images[]" multiple accept="image/*" class="hidden">
+                </label>
+                <p id="file-count" class="mt-3 text-sm text-gray-500"></p>
+                <p id="file-error" class="mt-3 text-sm text-red-500" style="display: none;"></p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 text-lg font-semibold mb-3">Select a Theme:</label>
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <button type="button" class="theme-button bg-gradient-to-r from-pink-500 to-yellow-500 text-white" data-theme="theme1">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2h.642v7a3 3 0 01-3 3h-9.244a3 3 0 01-3-3v-7h.642m2.943-10h.001M12 9v1m0 1v3m0 3v1m2-10h.001M16 5v1m0 1v3m0 3v1"></path></svg>
+                        Vintage
+                    </button>
+                    <button type="button" class="theme-button bg-gradient-to-r from-green-400 to-blue-500 text-white" data-theme="theme2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-4m3 4v-4m3 4v-4m9-6v4a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h12a3 3 0 013 3z"></path></svg>
+                        Modern
+                    </button>
+                    <button type="button" class="theme-button bg-gradient-to-r from-purple-500 to-pink-500 text-white" data-theme="theme3">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h6l2 2h6a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+                        Classic
+                    </button>
+                    <button type="button" class="theme-button bg-gradient-to-r from-yellow-600 to-orange-600 text-white" data-theme="theme4">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15m-6 4v+5m0-10v+5m0-5h+5m-5 0h-5M3 3l3.48 4.98a1.5 1.5 0 002.042 0L9 3m12 0l-3.48 4.98a1.5 1.5 0 01-2.042 0L15 3m-6 6l-3.48 4.98a1.5 1.5 0 00-2.042 0L9 9"></path></svg>
+                        Artistic
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-6 flex items-center">
+                <input type="checkbox" id="useSameTheme" name="useSameTheme" class="mr-2 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <label for="useSameTheme" class="text-gray-700 text-lg">Use the same theme for future generations</label>
+            </div>
+
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-md focus:outline-none focus:shadow-outline w-full text-lg">Generate Photobook</button>
+        </form>
+
+        <div id="imagePreview" class="image-grid">
+            </div>
+
+        <div id="photobookResult" class="mt-10 text-center" style="display: none;">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Photobook Preview</h2>
+            <div class="border rounded-xl p-6 bg-gray-50 shadow-lg">
+                <img id="photobookCanvas" src="" alt="Photobook" class="mx-auto rounded-xl shadow-xl" style="max-width: 100%; height: auto;">
+            </div>
+            <a id="downloadLink" href="#" download="photobook.png" class="mt-6 bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-6 rounded-xl shadow-md focus:outline-none focus:shadow-outline text-lg">
+                <svg class="h-7 w-7 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-1-11l-5-5m0 0l-5 5m5-5v12"></path></svg>
+                <span>Download Photobook</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const imageUploadForm = document.getElementById('imageUploadForm');
+        const imageInput = document.getElementById('images');
+        const imagePreview = document.getElementById('imagePreview');
+        const photobookResult = document.getElementById('photobookResult');
+        const photobookCanvas = document.getElementById('photobookCanvas');
+        const downloadLink = document.getElementById('downloadLink');
+        const fileCountDisplay = document.getElementById('file-count');
+        const fileErrorDisplay = document.getElementById('file-error');
+        const themeButtons = document.querySelectorAll('.theme-button');
+        const useSameThemeCheckbox = document.getElementById('useSameTheme');
+
+
+        const MAX_IMAGES = 10;
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 600;
+
+        let uploadedImages = [];
+        let selectedTheme = null;
+        let useSameTheme = false;
+
+        imageInput.addEventListener('change', handleFileSelect);
+        imageUploadForm.addEventListener('submit', handleGeneratePhotobook);
+        themeButtons.forEach(button => {
+            button.addEventListener('click', handleThemeSelect);
+        });
+        useSameThemeCheckbox.addEventListener('change', handleUseSameThemeChange);
+
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            let fileCount = files.length;
+
+            fileErrorDisplay.style.display = 'none';
+            uploadedImages = [];
+            imagePreview.innerHTML = '';
+
+            if (fileCount > MAX_IMAGES) {
+                fileErrorDisplay.textContent = `You can only upload a maximum of ${MAX_IMAGES} images.`;
+                fileErrorDisplay.style.display = 'block';
+                fileCountDisplay.textContent = '';
+                imageInput.value = '';
+                return;
+            }
+
+            if (fileCount === 0) {
+                fileCountDisplay.textContent = '';
+                return;
+            }
+
+            for (let i = 0; i < fileCount; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        uploadedImages.push(img);
+                        displayImagePreview(img);
+                    };
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+            fileCountDisplay.textContent = `${fileCount} image(s) selected`;
+        }
+
+        function displayImagePreview(img) {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.src;
+            imagePreview.appendChild(imgElement);
+        }
+
+        function handleGeneratePhotobook(event) {
+            event.preventDefault();
+
+            if (uploadedImages.length === 0) {
+                fileErrorDisplay.textContent = 'Please upload at least one image.';
+                fileErrorDisplay.style.display = 'block';
+                return;
+            }
+
+            if (!selectedTheme && !useSameTheme) {
+                fileErrorDisplay.textContent = 'Please select a theme for your photobook.';
+                fileErrorDisplay.style.display = 'block';
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = CANVAS_WIDTH;
+            canvas.height = CANVAS_HEIGHT;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            const numImages = uploadedImages.length;
+            const imagePositions = calculateImagePositions(numImages);
+
+            for (let i = 0; i < numImages; i++) {
+                const img = uploadedImages[i];
+                const { x, y, width, height } = imagePositions[i];
+
+                // Apply theme and border
+                let themedImage = applyTheme(img, selectedTheme || (useSameTheme ? selectedTheme : 'theme1'));
+                drawBorder(ctx, themedImage, x, y, width, height, selectedTheme || (useSameTheme ? selectedTheme : 'theme1'));
+                ctx.drawImage(themedImage, x, y, width, height);
+            }
+
+            const dataURL = canvas.toDataURL('image/png');
+            photobookCanvas.src = dataURL;
+            photobookResult.style.display = 'block';
+            downloadLink.href = dataURL;
+            downloadLink.style.display = 'inline-flex';
+
+            if (!useSameTheme) {
+                selectedTheme = null;
+                themeButtons.forEach(button => button.classList.remove('selected'));
+            }
+            imageInput.value = '';
+            fileCountDisplay.textContent = '';
+            uploadedImages = [];
+            imagePreview.innerHTML = '';
+        }
+
+        function calculateImagePositions(numImages) {
+            const positions = [];
+            const margin = 20;
+            const availableWidth = CANVAS_WIDTH - 2 * margin;
+            const availableHeight = CANVAS_HEIGHT - 2 * margin;
+
+            if (numImages === 1) {
+                const imgWidth = Math.min(availableWidth, availableHeight);
+                const x = (CANVAS_WIDTH - imgWidth) / 2;
+                const y = (CANVAS_HEIGHT - imgWidth) / 2;
+                positions.push({ x: x, y: y, width: imgWidth, height: imgWidth });
+            } else if (numImages === 2) {
+                const imgWidth = (availableWidth - margin) / 2;
+                const imgHeight = availableHeight;
+                positions.push({ x: margin, y: margin, width: imgWidth, height: imgHeight });
+                positions.push({ x: margin + imgWidth + margin, y: margin, width: imgWidth, height: imgHeight });
+            } else if (numImages === 3) {
+                const imgWidth = (availableWidth - 2 * margin) / 3;
+                const imgHeight = availableHeight / 2;
+                positions.push({ x: margin, y: margin, width: imgWidth, height: imgHeight });
+                positions.push({ x: (CANVAS_WIDTH/2) - (imgWidth/2), y: availableHeight/2, width: imgWidth, height: imgHeight });
+                positions.push({ x: margin + 2 * (imgWidth + margin), y: margin, width: imgWidth, height: imgHeight });
+            } else if (numImages === 4) {
+                const imgWidth = (availableWidth - margin) / 2;
+                const imgHeight = (availableHeight - margin) / 2;
+                positions.push({ x: margin, y: margin, width: imgWidth, height: imgHeight });
+                positions.push({ x: margin + imgWidth + margin, y: margin, width: imgWidth, height: imgHeight });
+                positions.push({ x: margin, y: margin + imgHeight + margin, width: imgWidth, height: imgHeight });
+                positions.push({ x: margin + imgWidth + margin, y: margin + imgHeight + margin, width: imgWidth, height: imgHeight });
+            } else if (numImages === 5) {
+                const halfWidth = (availableWidth - margin) / 2;
+                const thirdHeight = (availableHeight - 2 * margin) / 3;
+                positions.push({ x: margin, y: margin, width: halfWidth, height: thirdHeight });
+                positions.push({ x: margin + halfWidth + margin, y: margin, width: halfWidth, height: thirdHeight });
+                positions.push({ x: (CANVAS_WIDTH/2) - (halfWidth/2), y: margin + thirdHeight + margin/2, width: halfWidth, height: thirdHeight });
+                positions.push({ x: margin, y: 2*margin + 2*thirdHeight, width: halfWidth, height: thirdHeight });
+                positions.push({ x: margin + halfWidth + margin, y: 2*margin + 2*thirdHeight, width: halfWidth, height: thirdHeight });
+            } else if (numImages === 6) {
+                const thirdWidth = (availableWidth - 2 * margin) / 3;
+                const thirdHeight = (availableHeight - 2* margin) / 3;
+                for (let i = 0; i < numImages; i++) {
+                    const row = Math.floor(i / 3);
+                    const col = i % 3;
+                    positions.push({
+                        x: margin + col * (thirdWidth + margin),
+                        y: margin + row * (thirdHeight + margin),
+                        width: thirdWidth,
+                        height: thirdHeight
+                    });
+                }
+            }
+            else if (numImages <= 10) {
+                const quarterWidth = (availableWidth - 3 * margin) / 4;
+                const thirdHeight = (availableHeight - 2 * margin) / 3;
+                for (let i = 0; i < numImages; i++) {
+                    const row = Math.floor(i / 4);
+                    const col = i % 4;
+                    positions.push({
+                        x: margin + col * (quarterWidth + margin),
+                        y: margin + row * (thirdHeight + margin),
+                        width: quarterWidth,
+                        height: thirdHeight
+                    });
+                }
+            }
+            return positions;
+        }
+
+        function applyTheme(img, theme) {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+
+            const imageData = ctx.getImageData(0, 0, img.width, img.height);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i];
+                let g = data[i + 1];
+                let b = data[i + 2];
+
+                if (theme === 'theme1') { // Vintage
+                    r = Math.max(0, Math.min(255, r * 1.1 + 10));
+                    g = Math.max(0, Math.min(255, g * 0.9 + 20));
+                    b = Math.max(0, Math.min(255, b * 0.8 + 30));
+                } else if (theme === 'theme2') { // Modern
+                    r = Math.max(0, Math.min(255, r * 0.95 + 15));
+                    g = Math.max(0, Math.min(255, g * 1.05 - 10));
+                    b = Math.max(0, Math.min(255, b * 1.1 + 5));
+                } else if (theme === 'theme3') { // Classic
+                    r = Math.max(0, Math.min(255, r * 1.02 + 8));
+                    g = Math.max(0, Math.min(255, g * 1.02 + 8));
+                    b = Math.max(0, Math.min(255, b * 1.02 + 8));
+                }  else if (theme === 'theme4') { // Artistic
+                    r = Math.max(0, Math.min(255, r * 1.1 + 10));
+                    g = Math.max(0, Math.min(255, g * 0.8 + 20));
+                    b = Math.max(0, Math.min(255, b * 0.9 + 10));
+                }
+
+                data[i] = r;
+                data[i + 1] = g;
+                data[i + 2] = b;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        }
+
+        function drawBorder(ctx, img, x, y, width, height, theme) {
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+            if (theme === 'theme1') { // Vintage
+                ctx.strokeStyle = '#D37D28';
+                ctx.lineDashOffset = 10;
+                ctx.setLineDash([20, 10]);
+            } else if (theme === 'theme2') { // Modern
+                 ctx.strokeStyle = '#4299E1';
+                 ctx.lineDashOffset = 5;
+                 ctx.setLineDash([10, 5]);
+            } else if (theme === 'theme3') { // Classic
+                ctx.strokeStyle = '#718096';
+                ctx.setLineDash([]);
+            } else if (theme === 'theme4') { // Artistic
+                ctx.strokeStyle = '#F56565';
+                ctx.lineDashOffset = 15;
+                ctx.setLineDash([30, 15]);
+            }
+            ctx.strokeRect(x, y, width, height);
+            ctx.setLineDash([]);
+        }
+
+        function handleThemeSelect(event) {
+            const theme = event.target.dataset.theme;
+            selectedTheme = theme;
+            themeButtons.forEach(button => button.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function handleUseSameThemeChange(event) {
+            useSameTheme = event.target.checked;
+        }
+    </script>
+</body>
+</html>
