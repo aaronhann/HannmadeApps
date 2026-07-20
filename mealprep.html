@@ -335,19 +335,23 @@
         function exportSingleRecipe(buttonElement, recipeId) {
             const specificCard = buttonElement.closest('.recipe-card');
             
-            // Use html2canvas to render the card directly into a JPEG download
+            // Clean handling with CORS allowance parameters to prevent canvas taint issues
             html2canvas(specificCard, {
                 useCORS: true,
+                allowTaint: true,
                 scale: 2,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                logging: false
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `recipe-${recipeId}.jpeg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.95);
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
             }).catch(err => {
                 console.error("Export error:", err);
-                alert("Could not export recipe as JPEG.");
+                alert("Could not export recipe as a JPEG due to external image cross-origin restrictions. Please try opening via a local development server.");
             });
         }
 
@@ -419,7 +423,7 @@
                 const cardHTML = `
                     <div class="bg-white border border-[#EAEAEA] rounded-2xl overflow-hidden shadow-sm flex flex-col recipe-card p-5">
                         <div class="flex-1 flex flex-col">
-                            ${imageUrl ? `<div class="mb-3 rounded-xl overflow-hidden h-36 bg-[#F4F4F2]"><img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover"></div>` : ''}
+                            ${imageUrl ? `<div class="mb-3 rounded-xl overflow-hidden h-36 bg-[#F4F4F2]"><img src="${imageUrl}" crossorigin="anonymous" alt="${title}" class="w-full h-full object-cover"></div>` : ''}
                             <div class="flex justify-between items-start gap-2 mb-2">
                                 <h4 class="font-bold text-base text-[#1A1A18] leading-tight">${title}</h4>
                                 <span class="text-xs font-extrabold bg-[#FEFBF7] text-[#D4A373] px-2.5 py-1 border border-[#F5E6D3] rounded-lg shrink-0">
