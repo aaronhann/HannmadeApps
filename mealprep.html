@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Errands Meal Prep</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap');
+        
+        /* Custom local/system web font integration for header branding */
+        @font-face {
+            font-family: 'sabandija-ffp';
+            src: local('sabandija-ffp'), local('Sabandija-FFP'), url('#') format('truetype');
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        .brand-font {
+            font-family: 'sabandija-ffp', 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Strict Export formatting to isolate specific recipe card and summary */
+        @media print {
+            body {
+                background: white !important;
+                color: #000000 !important;
+            }
+            header, #filterForm, .no-print, .recipe-card:not(.print-target) {
+                display: none !important;
+            }
+            main {
+                padding: 0 !important;
+                max-w: 100% !important;
+            }
+            #resultsWrapper {
+                display: block !important;
+            }
+            #exportSummary {
+                display: block !important;
+                margin-bottom: 2rem;
+                padding: 1rem;
+                border: 1px dashed #CDCDCA;
+                border-radius: 0.75rem;
+            }
+            .recipe-card.print-target {
+                border: 1px solid #EAEAEA !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#FBFBFA] text-[#333330] min-h-screen antialiased">
+
+    <!-- Header -->
+    <header class="border-b border-[#EAEAEA] bg-white sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-[#D4A373] rounded-full"></span>
+                <h1 class="text-xl font-bold tracking-tight text-[#1A1A18] brand-font">Errands Meal Prep</h1>
+            </div>
+            <span class="text-xs font-medium text-[#7A7A75] bg-[#F4F4F2] px-3 py-1 rounded-full">Organic & Whole Foods</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-6 py-8">
+        
+        <!-- Intro -->
+        <div class="mb-6 text-center max-w-2xl mx-auto no-print">
+            <h2 class="text-2xl font-bold tracking-tight text-[#1A1A18] mb-2">Custom Meal Planner</h2>
+            <p class="text-[#666660] text-xs leading-relaxed">
+                Select your parameters below to generate 3 tailored, nutrient-dense recipes built around fresh meats, seafood, and organic produce.
+            </p>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div class="bg-white border border-[#EAEAEA] rounded-2xl p-4 md:p-6 shadow-sm mb-8 no-print">
+            <form id="filterForm" onsubmit="generateMeals(event)">
+                
+                <!-- Filter 3: Meal Time Timeline (Moved to Top) -->
+                <div class="mb-4 pb-4 border-b border-[#F4F4F2]">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-2 text-center md:text-left">Meal Schedule Category</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                            <input type="radio" name="mealtime" value="breakfast" checked class="sr-only">
+                            <span class="text-xs font-semibold">Breakfast</span>
+                        </label>
+                        <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                            <input type="radio" name="mealtime" value="lunch" class="sr-only">
+                            <span class="text-xs font-semibold">Lunch</span>
+                        </label>
+                        <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                            <input type="radio" name="mealtime" value="supper" class="sr-only">
+                            <span class="text-xs font-semibold">Supper</span>
+                        </label>
+                        <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                            <input type="radio" name="mealtime" value="dessert" class="sr-only">
+                            <span class="text-xs font-semibold">Dessert</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    
+                    <!-- Filter 1: Dietary Profiles -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-1">Dietary Profiles</label>
+                        <span class="text-[11px] text-[#7A7A75] block mb-2">Select up to 3 profiles</span>
+                        <div class="grid grid-cols-2 gap-1.5" id="dietaryGroup">
+                            <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
+                                <input type="checkbox" name="diet" value="celiac" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
+                                <span class="font-medium">Celiac Friendly</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
+                                <input type="checkbox" name="diet" value="diabetic" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
+                                <span class="font-medium">Diabetic Friendly</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
+                                <input type="checkbox" name="diet" value="high-protein" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
+                                <span class="font-medium">High Protein</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
+                                <input type="checkbox" name="diet" value="low-carb" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
+                                <span class="font-medium">Low Carb</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Filter 2: Caloric Range & Micronutrients -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-2">Daily Calorie Target</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <label class="border border-[#EAEAEA] rounded-xl p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                                    <input type="radio" name="calories" value="1200" checked class="sr-only">
+                                    <span class="text-xs font-bold text-[#1A1A18]">~1200</span>
+                                    <span class="text-[9px] text-[#7A7A75] mt-0.5">kcal / day</span>
+                                </label>
+                                <label class="border border-[#EAEAEA] rounded-xl p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                                    <input type="radio" name="calories" value="1500" class="sr-only">
+                                    <span class="text-xs font-bold text-[#1A1A18]">~1500</span>
+                                    <span class="text-[9px] text-[#7A7A75] mt-0.5">kcal / day</span>
+                                </label>
+                                <label class="border border-[#EAEAEA] rounded-xl p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                                    <input type="radio" name="calories" value="2000" class="sr-only">
+                                    <span class="text-xs font-bold text-[#1A1A18]">~2000</span>
+                                    <span class="text-[9px] text-[#7A7A75] mt-0.5">kcal / day</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-1">Micronutrient Richness</label>
+                            <span class="text-[11px] text-[#7A7A75] block mb-2">Select up to 3 targets</span>
+                            <div class="grid grid-cols-2 gap-1.5" id="nutrientGroup">
+                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="magnesium" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                    <span>Magnesium</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="b12" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                    <span>Vitamin B12</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="potassium" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                    <span>Potassium</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="iron" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                    <span>Iron</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="calcium" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                    <span>Calcium</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="vit-d" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                    <span>Vitamin D</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="vit-c" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                    <span>Vitamin C</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Action -->
+                <div class="text-center border-t border-[#F4F4F2] pt-4">
+                    <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-[#1A1A18] hover:bg-[#2D2D29] text-white font-semibold text-xs rounded-xl shadow-sm transition-all transform hover:-translate-y-0.5">
+                        Generate Balanced Plan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section Header -->
+        <div id="resultsWrapper" class="hidden">
+            <!-- Hidden context by default, displayed cleanly on export layouts -->
+            <div id="exportSummary" class="hidden">
+                <h2 class="text-xl font-bold text-[#1A1A18]">Errands Meal Prep Generation Summary</h2>
+                <p class="text-xs text-[#555550] mt-1" id="summaryText"></p>
+            </div>
+
+            <div class="mb-4 border-b border-[#EAEAEA] pb-2 no-print">
+                <h3 class="text-lg font-bold text-[#1A1A18]">Your Generated Menu Selection</h3>
+                <p class="text-xs text-[#7A7A75] mt-0.5">3 individual meal options prepared based on current configurations</p>
+            </div>
+
+            <!-- Dynamic Recipe Container (3 Results) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="recipeContainer"></div>
+        </div>
+    </main>
+
+    <!-- Script Content -->
+    <script>
+        // Restrict Profile selection to a maximum of 3
+        const dietaryGroup = document.getElementById('dietaryGroup');
+        const checkboxes = dietaryGroup.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                if (dietaryGroup.querySelectorAll('input[type="checkbox"]:checked').length > 3) {
+                    cb.checked = false;
+                    alert('You can select a maximum of 3 dietary profiles.');
+                }
+            });
+        });
+
+        // Restrict Vitamin selection to a maximum of 3
+        const nutrientGroup = document.getElementById('nutrientGroup');
+        const nutrientCheckboxes = nutrientGroup.querySelectorAll('input[type="checkbox"]');
+        nutrientCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                if (nutrientGroup.querySelectorAll('input[type="checkbox"]:checked').length > 3) {
+                    cb.checked = false;
+                    alert('You can select a maximum of 3 nutrient focuses.');
+                }
+            });
+        });
+
+        // Expanded Recipe Database with a massive variety of 40 individual recipes (10 per category)
+        const recipesDatabase = [
+            // --- BREAKFAST (10 Recipes) ---
+            {
+                id: 1, mealtime: "breakfast", tags: ["celiac", "low-carb", "high-protein"], micros: ["iron", "magnesium"],
+                title: "Organic Spinach & Turkey Scramble",
+                desc: "Fluffy pasture-raised organic eggs scrambled with lean shaved turkey breast and baby spinach leaves.",
+                calories: { "1200": 310, "1500": 385, "2000": 490 },
+                portions: {
+                    "1200": ["2 Large Organic Eggs", "2 oz Smoked Turkey Breast", "1 cup Raw Baby Spinach", "1 tsp Extra Virgin Olive Oil"],
+                    "1500": ["3 Large Organic Eggs", "2.5 oz Smoked Turkey Breast", "1.5 cups Raw Baby Spinach", "1.5 tsp Extra Virgin Olive Oil"],
+                    "2000": ["4 Large Organic Eggs", "4 oz Smoked Turkey Breast", "2 cups Raw Baby Spinach", "1 tbsp Extra Virgin Olive Oil"]
+                },
+                steps: ["Heat olive oil in a non-stick skillet over medium-low heat.", "Add chopped turkey breast and raw baby spinach, cooking for 2 minutes until wilted.", "Whisk organic eggs in a separate bowl, then pour into the skillet.", "Stir continuously using a heat-resistant spatula until eggs form soft curds.", "Season lightly with minimal sea salt and serve warm."]
+            },
+            {
+                id: 2, mealtime: "breakfast", tags: ["diabetic", "low-carb"], micros: ["potassium", "vit-c"],
+                title: "Avocado & Smoked Salmon Plate",
+                desc: "Wild-caught smoked salmon over sliced organic avocado, seasoned with black pepper and fresh lemon juice.",
+                calories: { "1200": 290, "1500": 360, "2000": 465 },
+                portions: {
+                    "1200": ["2 oz Wild Smoked Salmon", "1/2 Medium Organic Avocado", "Juice of 1/4 Lemon", "Cracked Black Pepper"],
+                    "1500": ["3 oz Wild Smoked Salmon", "1/2 Medium Organic Avocado", "Juice of 1/2 Lemon", "1 cup Cucumber Slices"],
+                    "2000": ["4 oz Wild Smoked Salmon", "1 Full Organic Avocado", "Juice of 1/2 Lemon", "1.5 cups Sliced Cucumbers"]
+                },
+                steps: ["Cut the organic avocado clean in half and slice neatly into crescent moon structures.", "Fan out the avocado gracefully onto a small serving platter.", "Drape the cold-smoked salmon slices over and adjacent to the avocado slices.", "Squeeze raw fresh organic lemon juice across the top.", "Finish with fresh cracked pepper and optional minced dill."]
+            },
+            {
+                id: 3, mealtime: "breakfast", tags: ["celiac", "diabetic"], micros: ["vit-c", "calcium"],
+                title: "Berry Abundance Protein Bowl",
+                desc: "An organic bowl containing fresh, vitamin-rich whole berries topped with structural seeds and organic protein cream.",
+                calories: { "1200": 260, "1500": 340, "2000": 440 },
+                portions: {
+                    "1200": ["1/2 cup Strawberries", "1/2 cup Blueberries", "5 oz Plain Organic Greek Yogurt", "1 tbsp Chia Seeds"],
+                    "1500": ["3/4 cup Strawberries", "3/4 cup Blueberries", "7 oz Plain Organic Greek Yogurt", "1 tbsp Chia Seeds"],
+                    "2000": ["1 cup Strawberries", "1 cup Blueberries", "8 oz Plain Organic Greek Yogurt", "2 tbsp Chia Seeds", "10 Raw Almonds"]
+                },
+                steps: ["Rinse the organic strawberries, blueberries, and raspberries thoroughly under cold water.", "Slice the strawberries cleanly into halves.", "Spoon organic Greek yogurt into the center of a serving bowl.", "Arrange the mixed fresh berries over the top surface area.", "Evenly dust with chia seeds for dynamic fiber structure."]
+            },
+            {
+                id: 13, mealtime: "breakfast", tags: ["high-protein", "low-carb"], micros: ["iron", "b12"],
+                title: "Steak and Egg White Omelet",
+                desc: "Lean cuts of grass-fed beef folded gently into fluffy organic egg whites with a dash of fresh chives.",
+                calories: { "1200": 330, "1500": 410, "2000": 515 },
+                portions: {
+                    "1200": ["4 oz Liquid Egg Whites", "1.5 oz Lean Beef Strips", "1 tsp Ghee"],
+                    "1500": ["6 oz Liquid Egg Whites", "2 oz Lean Beef Strips", "1.5 tsp Ghee"],
+                    "2000": ["8 oz Liquid Egg Whites", "3 oz Lean Beef Strips", "2 tsp Ghee", "1/4 cup Bell Peppers"]
+                },
+                steps: ["Sauté lean beef strips in a small skillet until browned, then set aside.", "Wipe pan, melt ghee, and pour in liquid egg whites over low heat.", "When edges firm up, add beef across the center and fold omelet over.", "Slide onto plate and garnish with fresh snipped chives."]
+            },
+            {
+                id: 14, mealtime: "breakfast", tags: ["celiac", "diabetic"], micros: ["magnesium", "potassium"],
+                title: "Flaxseed Oatmeal with Hemp Hearts",
+                desc: "Hearty gluten-free organic rolled oats cooked in almond milk, dusted with crushed flaxseed and hemp seeds.",
+                calories: { "1200": 280, "1500": 350, "2000": 450 },
+                portions: {
+                    "1200": ["1/3 cup GF Oats", "1 cup Almond Milk", "1 tsp Flaxseed", "1 tsp Hemp Hearts"],
+                    "1500": ["1/2 cup GF Oats", "1.25 cups Almond Milk", "2 tsp Flaxseed", "2 tsp Hemp Hearts"],
+                    "2000": ["3/4 cup GF Oats", "1.5 cups Almond Milk", "1 tbsp Flaxseed", "1 tbsp Hemp Hearts", "1/4 cup Blackberries"]
+                },
+                steps: ["Bring unsweetened almond milk to a gentle simmer in a small saucepan.", "Stir in the gluten-free oats and lower heat, stirring periodically for 5 minutes.", "Pour oatmeal into a serving bowl.", "Top evenly with flaxseed, hemp hearts, and optional wild berries."]
+            },
+            {
+                id: 15, mealtime: "breakfast", tags: ["low-carb", "high-protein"], micros: ["calcium", "vit-d"],
+                title: "Baked Cottage Cheese Frittata",
+                desc: "Savory mini whipped organic cottage cheese frittatas baked with diced organic zucchini and fresh thyme.",
+                calories: { "1200": 240, "1500": 320, "2000": 420 },
+                portions: {
+                    "1200": ["1/2 cup Cottage Cheese", "1 Whole Egg", "1/4 cup Zucchini"],
+                    "1500": ["2/3 cup Cottage Cheese", "2 Whole Eggs", "1/3 cup Zucchini"],
+                    "2000": ["1 cup Cottage Cheese", "2 Whole Eggs", "1/2 cup Zucchini", "1 tbsp Grated Parmesan"]
+                },
+                steps: ["Preheat your oven to 375 degrees Fahrenheit and grease muffin tins lightly.", "Whisk the organic eggs and cottage cheese together until a smooth mixture forms.", "Stir in the diced zucchini and fresh thyme leaves.", "Bake for 18 minutes until the centers are set and slightly golden."]
+            },
+            {
+                id: 16, mealtime: "breakfast", tags: ["celiac", "low-carb"], micros: ["iron", "vit-c"],
+                title: "Chia Seed Pudding with Kiwi",
+                desc: "Creamy vanilla chia seed pudding layered with fresh organic kiwi slices and raw pumpkin seeds.",
+                calories: { "1200": 220, "1500": 290, "2000": 390 },
+                portions: {
+                    "1200": ["2 tbsp Chia Seeds", "1/2 cup Coconut Milk", "1/2 Kiwi", "1 tsp Pumpkin Seeds"],
+                    "1500": ["3 tbsp Chia Seeds", "3/4 cup Coconut Milk", "1 Full Kiwi", "2 tsp Pumpkin Seeds"],
+                    "2000": ["4 tbsp Chia Seeds", "1 cup Coconut Milk", "1.5 Kiwis", "1 tbsp Pumpkin Seeds"]
+                },
+                steps: ["Mix chia seeds and light coconut milk in a mason jar; shake vigorously.", "Let sit for 10 minutes, stir again, then cover and refrigerate overnight.", "Spoon into a serving dish and top with sliced fresh kiwi.", "Garnish with raw pumpkin seeds for mineral depth."]
+            },
+            {
+                id: 17, mealtime: "breakfast", tags: ["high-protein", "diabetic"], micros: ["b12", "magnesium"],
+                title: "Savory Turkey Bacon Egg Cups",
+                desc: "Crisp lean turkey bacon wrapped snugly into cups and baked with a single whole organic egg inside.",
+                calories: { "1200": 270, "1500": 350, "2000": 460 },
+                portions: {
+                    "1200": ["2 Slices Turkey Bacon", "2 Organic Eggs", "Sea Salt & Pepper"],
+                    "1500": ["3 Slices Turkey Bacon", "3 Organic Eggs", "Sea Salt & Pepper"],
+                    "2000": ["4 Slices Turkey Bacon", "4 Organic Eggs", "Chopped Green Onions"]
+                },
+                steps: ["Line a muffin tin with turkey bacon slices to form a circular base shell.", "Crack one whole organic egg directly into each bacon cup.", "Bake at 400 degrees Fahrenheit for 12-15 minutes until the egg whites set completely.", "Garnish with fresh cracked pepper or chives."]
+            },
+            {
+                id: 18, mealtime: "breakfast", tags: ["celiac", "high-protein"], micros: ["calcium", "vit-c"],
+                title: "Strawberry Almond Protein Shake",
+                desc: "A thick blended breakfast shake made with organic pea protein, almond milk, and fresh whole strawberries.",
+                calories: { "1200": 250, "1500": 330, "2000": 435 },
+                portions: {
+                    "1200": ["1 Scoop Protein Powder", "1 cup Almond Milk", "1/2 cup Strawberries"],
+                    "1500": ["1.25 Scoops Protein Powder", "1.25 cups Almond Milk", "3/4 cup Strawberries"],
+                    "2000": ["1.5 Scoops Protein Powder", "1.5 cups Almond Milk", "1 cup Strawberries", "1 tbsp Almond Butter"]
+                },
+                steps: ["Add almond milk, fresh strawberries, and protein powder to a high-speed blender container.", "Blend on high speed for 45 seconds until smooth and integrated.", "Pour into a glass and serve immediately chilled."]
+            },
+            {
+                id: 19, mealtime: "breakfast", tags: ["diabetic", "low-carb"], micros: ["potassium", "iron"],
+                title: "Asparagus & Mushroom Frittata",
+                desc: "Fresh green asparagus tips and chopped baby bella mushrooms baked in a fluffy organic egg matrix.",
+                calories: { "1200": 230, "1500": 310, "2000": 410 },
+                portions: {
+                    "1200": ["2 Whole Eggs", "4 Asparagus Spears", "1/4 cup Mushrooms", "1 tsp Olive Oil"],
+                    "1500": ["3 Whole Eggs", "6 Asparagus Spears", "1/2 cup Mushrooms", "1.5 tsp Olive Oil"],
+                    "2000": ["4 Whole Eggs", "8 Asparagus Spears", "3/4 cup Mushrooms", "2 tsp Olive Oil"]
+                },
+                steps: ["Sauté sliced mushrooms and asparagus pieces in olive oil until soft.", "Beat eggs in a small bowl, then pour into the pan over the vegetables.", "Cook until the base sets, then transfer under an oven broiler for 2 minutes to puff the top."]
+            },
+
+            // --- LUNCH (10 Recipes) ---
+            {
+                id: 4, mealtime: "lunch", tags: ["high-protein", "low-carb", "celiac"], micros: ["b12", "iron"],
+                title: "Pan-Seared Salmon & Crisp Kale Salad",
+                desc: "Crispy skin-on wild salmon filet paired with tenderized leafy organic dinosaur kale rubbed down in olive oil.",
+                calories: { "1200": 410, "1500": 510, "2000": 630 },
+                portions: {
+                    "1200": ["4 oz Wild Salmon Filet", "2 cups Chopped Organic Kale", "1.5 tsp Extra Virgin Olive Oil", "1 tbsp Lemon Juice"],
+                    "1500": ["5 oz Wild Salmon Filet", "3 cups Chopped Organic Kale", "2 tsp Extra Virgin Olive Oil", "1 tbsp Lemon Juice"],
+                    "2000": ["6.5 oz Wild Salmon Filet", "3 cups Chopped Organic Kale", "1 tbsp Extra Virgin Olive Oil", "1.5 tbsp Lemon Juice", "1 tbsp Pumpkin Seeds"]
+                },
+                steps: ["Pat salmon filet completely dry and season surface area with sea salt.", "Heat skillet over medium-high heat with half the allotted olive oil.", "Place salmon skin-side down; press for 30 seconds, then cook 4 minutes until crisp. Flip and cook 2 minutes.", "In a bowl, massage remaining olive oil into the kale for 1 minute until tender.", "Top kale with cooked salmon and splash with lemon juice."]
+            },
+            {
+                id: 5, mealtime: "lunch", tags: ["diabetic", "low-carb"], micros: ["magnesium", "potassium"],
+                title: "Mediterranean Sardine Lettuce Wraps",
+                desc: "Sardines mashed with minced onions, diced tomatoes, packed snug inside large crisp organic romaine lettuce boats.",
+                calories: { "1200": 340, "1500": 410, "2000": 520 },
+                portions: {
+                    "1200": ["1 Can (3.75 oz) Wild Sardines in Water", "3 Large Romaine Leaves", "1/4 cup Diced Tomato", "2 tbsp Red Onion"],
+                    "1500": ["1.5 Cans Wild Sardines in Water", "4 Large Romaine Leaves", "1/3 cup Diced Tomato", "3 tbsp Red Onion", "1 tsp Olive Oil"],
+                    "2000": ["2 Cans Wild Sardines in Water", "5 Large Romaine Leaves", "1/2 cup Diced Tomato", "4 tbsp Red Onion", "2 tsp Olive Oil"]
+                },
+                steps: ["Drain the fluid from the sardine tin cleanly.", "In a small container, flake the sardines using a fork with tomato and red onion.", "Lay raw romaine lettuce leaves flat on a clean plate matrix.", "Spoon equal parts of the sardine paste down the spine of each leaf spine.", "Serve cool with an optional squeeze of citrus."]
+            },
+            {
+                id: 6, mealtime: "lunch", tags: ["high-protein", "diabetic"], micros: ["potassium", "b12"],
+                title: "Zesty Shredded Chicken Salad",
+                desc: "Lean poached organic chicken breast meat pulled down and tossed cleanly with grated carrots, diced celery, and light oil.",
+                calories: { "1200": 380, "1500": 460, "2000": 580 },
+                portions: {
+                    "1200": ["4.5 oz Chicken Breast", "1/2 cup Shredded Carrots", "1/2 cup Diced Celery", "1.5 tsp Olive Oil"],
+                    "1500": ["6 oz Chicken Breast", "3/4 cup Shredded Carrots", "1/2 cup Diced Celery", "2 tsp Olive Oil"],
+                    "2000": ["7.5 oz Chicken Breast", "1 cup Shredded Carrots", "3/4 cup Diced Celery", "1 tbsp Olive Oil"]
+                },
+                steps: ["Shred precooked or poached organic lean chicken breast along its natural muscle grain lines.", "Combine carrots, celery, and shredded chicken inside a medium mixing basin.", "Drizzle the calculated quantity of high-quality cold-pressed olive oil over the structure.", "Toss completely using salad tongs to ensure consistent oil coverage.", "Chill for 10 minutes prior to eating for enhanced flavors."]
+            },
+            {
+                id: 20, mealtime: "lunch", tags: ["celiac", "low-carb"], micros: ["vit-c", "iron"],
+                title: "Shrimp & Avocado Salad Bowl",
+                desc: "Succulent wild shrimp tossed with diced organic avocados, red radishes, and field greens.",
+                calories: { "1200": 350, "1500": 430, "2000": 540 },
+                portions: {
+                    "1200": ["4 oz Cleaned Shrimp", "1/2 Avocado", "2 cups Field Greens", "1 tsp Lime Juice"],
+                    "1500": ["5.5 oz Cleaned Shrimp", "1/2 Avocado", "3 cups Field Greens", "2 tsp Lime Juice"],
+                    "2000": ["7 oz Cleaned Shrimp", "1 Full Avocado", "3 cups Field Greens", "1 tbsp Olive Oil"]
+                },
+                steps: ["Sauté shrimp in a warm pan until pink and opaque.", "Toss field greens, radishes, and diced avocado together in a salad basin.", "Place cooked shrimp directly on top of the green base layers.", "Drizzle with fresh raw lime juice and minimal sea salt."]
+            },
+            {
+                id: 21, mealtime: "lunch", tags: ["high-protein", "low-carb"], micros: ["magnesium", "calcium"],
+                title: "Grilled Chicken Broccoli Wrap",
+                desc: "Thinly sliced grilled organic chicken breast coupled with tender broccoli slaw in a low-carb wrap shell.",
+                calories: { "1200": 370, "1500": 450, "2000": 560 },
+                portions: {
+                    "1200": ["4 oz Grilled Chicken", "1/2 cup Broccoli Slaw", "1 Low-Carb Tortilla Wrap"],
+                    "1500": ["5.5 oz Grilled Chicken", "3/4 cup Broccoli Slaw", "1 Low-Carb Tortilla Wrap"],
+                    "2000": ["7 oz Grilled Chicken", "1 cup Broccoli Slaw", "1 Low-Carb Tortilla Wrap", "1 tbsp Avocado Oil Mayo"]
+                },
+                steps: ["Slice cold or warm grilled chicken breast meat cleanly into strips.", "Toss broccoli slaw with calculated seasonings or avocado oil dressing if allowed.", "Arrange ingredients along the midline of the wrap sheet layer.", "Roll up tightly, slicing in half crosswise to serve easily."]
+            },
+            {
+                id: 22, mealtime: "lunch", tags: ["celiac", "diabetic"], micros: ["potassium", "vit-d"],
+                title: "Tuna Cucumber Bento Boats",
+                desc: "Wild line-caught albacore tuna salad stuffed cleanly into scooped organic English cucumber boats.",
+                calories: { "1200": 310, "1500": 390, "2000": 490 },
+                portions: {
+                    "1200": ["1 Can Tuna", "1 Large Cucumber", "1 tsp Olive Oil", "Minced Celery"],
+                    "1500": ["1.5 Cans Tuna", "1 Large Cucumber", "2 tsp Olive Oil", "2 tbsp Minced Celery"],
+                    "2000": ["2 Cans Tuna", "1.5 Cucumbers", "1 tbsp Olive Oil", "1/4 cup Minced Celery"]
+                },
+                steps: ["Slice the English cucumber in half lengthwise and scoop out the watery seed tracks.", "Flake tuna in a bowl with olive oil, minced celery, and cracked white pepper.", "Pack the hollowed cucumber hulls tightly with the prepared tuna salad.", "Slice into thick sections for clean finger-food presentation."]
+            },
+            {
+                id: 23, mealtime: "lunch", tags: ["high-protein", "celiac"], micros: ["iron", "b12"],
+                title: "Lean Beef & Cabbage Bowl",
+                desc: "Savory skillet browned lean ground beef tossed with fine shredded purple cabbage and apple cider vinegar.",
+                calories: { "1200": 390, "1500": 470, "2000": 590 },
+                portions: {
+                    "1200": ["4 oz Lean Ground Beef", "2 cups Shredded Cabbage", "1 tsp Cider Vinegar"],
+                    "1500": ["5.5 oz Lean Ground Beef", "3 cups Shredded Cabbage", "2 tsp Cider Vinegar"],
+                    "2000": ["7 oz Lean Ground Beef", "3 cups Shredded Cabbage", "1 tbsp Cider Vinegar", "1 tsp Sesame Seeds"]
+                },
+                steps: ["Brown the lean ground beef in a hot skillet matrix until fully cooked; drain fats.", "Add shredded cabbage directly into the skillet, cooking for 3 minutes until tender-crisp.", "Splash apple cider vinegar over the top and stir rapidly.", "Serve warm in a large wide lunch bowl."]
+            },
+            {
+                id: 24, mealtime: "lunch", tags: ["diabetic", "low-carb"], micros: ["calcium", "magnesium"],
+                title: "Turkey Breast & Arugula Roll-Ups",
+                desc: "Sliced whole organic turkey breast wrapped around fresh peppery arugula leaves and sliced pickles.",
+                calories: { "1200": 280, "1500": 360, "2000": 460 },
+                portions: {
+                    "1200": ["4 oz Sliced Turkey Breast", "1 cup Arugula", "1 Pickle Spear"],
+                    "1500": ["6 oz Sliced Turkey Breast", "1.5 cups Arugula", "2 Pickle Spears"],
+                    "2000": ["8 oz Sliced Turkey Breast", "2 cups Arugula", "2 Pickle Spears", "1 oz Goat Cheese Crumbles"]
+                },
+                steps: ["Lay turkey breast slices flat on a clean parchment preparation template.", "Divide arugula leaves evenly among the upper surface spaces.", "Place pickle strips at one end and roll the turkey slices up tightly.", "Secure with wooden toothpicks and serve chilled."]
+            },
+            {
+                id: 25, mealtime: "lunch", tags: ["celiac", "high-protein"], micros: ["vit-c", "potassium"],
+                title: "Lemon Herb Cod Salad",
+                desc: "Baked Atlantic cod flaked gently over sliced organic cherry tomatoes and chopped green leaf lettuce.",
+                calories: { "1200": 320, "1500": 400, "2000": 510 },
+                portions: {
+                    "1200": ["4.5 oz Cod Filet", "2 cups Chopped Lettuce", "1/2 cup Cherry Tomatoes"],
+                    "1500": ["6 oz Cod Filet", "3 cups Chopped Lettuce", "3/4 cup Cherry Tomatoes"],
+                    "2000": ["7.5 oz Cod Filet", "4 cups Chopped Lettuce", "1 cup Cherry Tomatoes", "1.5 tsp Olive Oil"]
+                },
+                steps: ["Bake cod filet at 375 degrees Fahrenheit for 10 minutes until easily flaked.", "Arrange chopped lettuce and split cherry tomatoes inside a lunch container.", "Top the cool greens with the warm flaked white fish flesh.", "Squeeze raw lemon juice over the complete layout context."]
+            },
+            {
+                id: 26, mealtime: "lunch", tags: ["low-carb", "high-protein"], micros: ["iron", "vit-d"],
+                title: "Egg Salad Celery Boats",
+                desc: "Pasture-raised eggs hard-boiled and mashed with mustard, served inside crisp organic celery logs.",
+                calories: { "1200": 300, "1500": 380, "2000": 480 },
+                portions: {
+                    "1200": ["2 Hard Eggs", "1 tsp Dijon Mustard", "3 Celery Stalks"],
+                    "1500": ["3 Hard Eggs", "1.5 tsp Dijon Mustard", "4 Celery Stalks"],
+                    "2000": ["3 Hard Eggs", "1.5 tsp Dijon Mustard", "5 Celery Stalks", "1 tbsp Greek Yogurt Mayo"]
+                },
+                steps: ["Peel and mash hard-boiled eggs inside a small bowl with Dijon mustard.", "Wash celery stalks thoroughly and chop away the coarse leaf ends.", "Spoon egg salad paste evenly into the central trough channels of celery logs.", "Dust with smoked paprika to enhance visuals."]
+            },
+
+            // --- SUPPER (10 Recipes) ---
+            {
+                id: 7, mealtime: "supper", tags: ["high-protein", "low-carb", "diabetic"], micros: ["iron", "magnesium"],
+                title: "Seared Sirloin & Asparagus Spear Medley",
+                desc: "Lean organic grass-fed beef sirloin pan-broiled alongside seasoned crisp fresh asparagus spears.",
+                calories: { "1200": 430, "1500": 540, "2000": 680 },
+                portions: {
+                    "1200": ["4 oz Grass-Fed Sirloin", "8 Asparagus Spears", "1.5 tsp Coconut Oil", "Sea Salt & Garlic Powder to taste"],
+                    "1500": ["5.5 oz Grass-Fed Sirloin", "12 Asparagus Spears", "2 tsp Coconut Oil", "Sea Salt & Garlic Powder"],
+                    "2000": ["7.5 oz Grass-Fed Sirloin", "15 Asparagus Spears", "1 tbsp Coconut Oil", "Sea Salt & Garlic Powder"]
+                },
+                steps: ["Bring steak to ambient room temperature and apply sea salt and granulated garlic dust.", "Melt coconut oil within a heavy cast iron pan architecture under high thermal output.", "Lay steak down; sear for roughly 3 minutes per side for medium-rare profile. Extract to rest.", "Reduce flame slightly, add asparagus spears directly into the remaining hot steak juices.", "Sauté asparagus for 4 minutes until bright emerald and tender-crisp."]
+            },
+            {
+                id: 8, mealtime: "supper", tags: ["celiac", "low-carb"], micros: ["vit-d", "calcium"],
+                title: "Baked White Fish with Crushed Mushroom Cap",
+                desc: "Flaky wild-caught fish loin baked under a blanket of minced organic button mushrooms and parsley.",
+                calories: { "1200": 360, "1500": 440, "2000": 560 },
+                portions: {
+                    "1200": ["5 oz White Fish Filet (e.g., Cod)", "1/2 cup Minced Mushrooms", "1 tsp Olive Oil", "1 cup Steamed Peas"],
+                    "1500": ["6.5 oz White Fish Filet", "3/4 cup Minced Mushrooms", "1.5 tsp Olive Oil", "1.25 cups Steamed Peas"],
+                    "2000": ["8 oz White Fish Filet", "1 cup Minced Mushrooms", "2.5 tsp Olive Oil", "1.5 cups Steamed Peas"]
+                },
+                steps: ["Preheat baking oven infrastructure to 375 degrees Fahrenheit.", "Situate the wild fish filet flat onto a parchment-lined oven sheet layout.", "Sauté minced mushrooms briefly in olive oil, then spread across the upper surface of fish.", "Transfer to oven matrix; bake for 12-15 minutes until white flesh flakes under light pressure.", "Serve instantly alongside warm sweet steamed organic green peas."]
+            },
+            {
+                id: 9, mealtime: "supper", tags: ["high-protein", "celiac"], micros: ["calcium", "iron"],
+                title: "Herbed Ground Turkey & Broccoli Skillet",
+                desc: "Lean organic lean ground turkey meat browned with diced sweet onions and fresh organic broccoli florets.",
+                calories: { "1200": 390, "1500": 480, "2000": 610 },
+                portions: {
+                    "1200": ["4.5 oz Lean Ground Turkey", "1.5 cups Broccoli Florets", "1/4 cup Chopped Onion", "1.5 tsp Olive Oil"],
+                    "1500": ["6 oz Lean Ground Turkey", "2 cups Broccoli Florets", "1/3 cup Chopped Onion", "2 tsp Olive Oil"],
+                    "2000": ["7.5 oz Lean Ground Turkey", "2.5 cups Broccoli Florets", "1/2 cup Chopped Onion", "1 tbsp Olive Oil"]
+                },
+                steps: ["Warm up olive oil within a high-walled cooking skillet over a medium flame element.", "Toss in chopped raw onion; cook for 3 minutes until aromatic translucency is attained.", "Introduce ground turkey meat, breaking apart continuously using a spoon until browned thoroughly.", "Drop the fresh broccoli florets directly inside the pan structure and apply 2 tablespoons of water.", "Cover tight with a lid lid for 3 minutes to steam-soften broccoli until tender."]
+            },
+            {
+                id: 27, mealtime: "supper", tags: ["high-protein", "low-carb"], micros: ["b12", "potassium"],
+                title: "Grilled Pork Chop & Brussels Sprouts",
+                desc: "Trimmed lean organic pork loin chop grilled crisp alongside halved olive oil roasted sprouts.",
+                calories: { "1200": 420, "1500": 510, "2000": 640 },
+                portions: {
+                    "1200": ["4 oz Pork Loin Chop", "1 cup Brussels Sprouts", "1.5 tsp Olive Oil"],
+                    "1500": ["5 oz Pork Loin Chop", "1.5 cups Brussels Sprouts", "2 tsp Olive Oil"],
+                    "2000": ["6.5 oz Pork Loin Chop", "2 cups Brussels Sprouts", "1 tbsp Olive Oil"]
+                },
+                steps: ["Season pork loin chops with black pepper and dry sage leaf friction.", "Sear chops on an indoor grill plate 5 minutes per side until inner meat is white.", "Toss halved sprouts in olive oil and bake on an open metal layout until leaves char crisp.", "Plate elements side by side."]
+            },
+            {
+                id: 28, mealtime: "supper", tags: ["celiac", "diabetic"], micros: ["iron", "vit-c"],
+                title: "Lemon Pepper Roasted Chicken Thighs",
+                desc: "Skinless chicken bone-in thighs roasted under a savory crust of lemon zest and cracked peppercorns.",
+                calories: { "1200": 400, "1500": 490, "2000": 610 },
+                portions: {
+                    "1200": ["5 oz Chicken Thigh Meat", "1 cup Cauliflower Florets", "1 tsp Olive Oil"],
+                    "1500": ["6.5 oz Chicken Thigh Meat", "1.5 cups Cauliflower Florets", "1.5 tsp Olive Oil"],
+                    "2000": ["8 oz Chicken Thigh Meat", "2 cups Cauliflower Florets", "2.5 tsp Olive Oil"]
+                },
+                steps: ["Rub chicken thigh flesh down with fresh ground black pepper and lemon zest matrix.", "Lay inside an oven pan configuration next to clean raw cauliflower nodes.", "Mistle oil spray on top surfaces and bake at 400 degrees Fahrenheit for 25 minutes.", "Serve smoking hot from processing matrix."]
+            },
+            {
+                id: 29, mealtime: "supper", tags: ["low-carb", "high-protein"], micros: ["magnesium", "vit-d"],
+                title: "Pan-Seared Halibut & Asparagus Ribbons",
+                desc: "Firm wild halibut loin pan-cooked in minimal ghee and served on shaved raw asparagus strands.",
+                calories: { "1200": 370, "1500": 460, "2000": 580 },
+                portions: {
+                    "1200": ["4.5 oz Halibut Filet", "1 cup Asparagus Ribbons", "1 tsp Ghee"],
+                    "1500": ["6 oz Halibut Filet", "1.5 cups Asparagus Ribbons", "1.5 tsp Ghee"],
+                    "2000": ["7.5 oz Halibut Filet", "2 cups Asparagus Ribbons", "2 tsp Ghee"]
+                },
+                steps: ["Shave asparagus stalks into thin lace ribbons using an ordinary potato peeler tool.", "Melt ghee in skillet over sharp flame and sear fish 3 minutes on both profiles.", "Lay asparagus strands on plate structure; position warm white fish right over the top."]
+            },
+            {
+                id: 30, mealtime: "supper", tags: ["celiac", "diabetic"], micros: ["calcium", "potassium"],
+                title: "Ginger Beef Zucchini Noodle Stir-Fry",
+                desc: "Shaved lean flank steak flashed in a skillet with ginger root extract and spiraled green zucchini coils.",
+                calories: { "1200": 380, "1500": 470, "2000": 590 },
+                portions: {
+                    "1200": ["4 oz Flank Steak", "1.5 cups Zucchini Noodles", "1 tsp Sesame Oil"],
+                    "1500": ["5.5 oz Flank Steak", "2 cups Zucchini Noodles", "1.5 tsp Sesame Oil"],
+                    "2000": ["7 oz Flank Steak", "2.5 cups Zucchini Noodles", "2 tsp Sesame Oil", "1 tbsp Coconut Aminos"]
+                },
+                steps: ["Stir-fry flank steak slivers in a hot pan matrix with dark sesame oil and grated ginger.", "Throw in raw zucchini noodle strands once meat browning operations conclude.", "Toss continuously for 90 seconds to preserve structural crunch before extracting."]
+            },
+            {
+                id: 31, mealtime: "supper", tags: ["high-protein", "low-carb"], micros: ["iron", "b12"],
+                title: "Garlic Butter Shrimp Zoodles",
+                desc: "Plump wild prawns seared in garlic-infused grass-fed butter, tossed with fresh zucchini noodles.",
+                calories: { "1200": 340, "1500": 420, "2000": 530 },
+                portions: {
+                    "1200": ["4.5 oz Shrimp", "1.5 cups Zoodles", "1 tsp Grass-Fed Butter", "1 Garlic Clove"],
+                    "1500": ["6 oz Shrimp", "2 cups Zoodles", "1.5 tsp Grass-Fed Butter", "2 Garlic Cloves"],
+                    "2000": ["7.5 oz Shrimp", "2 cups Zoodles", "1 tbsp Grass-Fed Butter", "2 Garlic Cloves"]
+                },
+                steps: ["Melt grass-fed butter in a pan over medium heat and sauté minced garlic for 30 seconds.", "Add shrimp and cook until pink, about 2-3 minutes per side.", "Toss zucchini noodles into the pan, stirring through the garlic butter for 1 minute until warm."]
+            },
+            {
+                id: 32, mealtime: "supper", tags: ["celiac", "diabetic"], micros: ["magnesium", "vit-c"],
+                title: "Turkey Meatballs with Steamed Bok Choy",
+                desc: "Baked turkey meatballs seasoned with fresh cilantro, paired with ginger-steamed organic baby bok choy.",
+                calories: { "1200": 360, "1500": 440, "2000": 550 },
+                portions: {
+                    "1200": ["4 oz Ground Turkey (as meatballs)", "2 heads Baby Bok Choy", "1 tsp Sesame Oil"],
+                    "1500": ["5.5 oz Ground Turkey (as meatballs)", "3 heads Baby Bok Choy", "1.5 tsp Sesame Oil"],
+                    "2000": ["7 oz Ground Turkey (as meatballs)", "4 heads Baby Bok Choy", "2 tsp Sesame Oil"]
+                },
+                steps: ["Mix ground turkey with minced cilantro and bake at 375°F for 15 minutes into round meatballs.", "Steam baby bok choy over boiling water for 4 minutes until vibrant green.", "Drizzle bok choy with sesame oil and serve alongside the hot turkey meatballs."]
+            },
+            {
+                id: 33, mealtime: "supper", tags: ["high-protein", "low-carb", "celiac"], micros: ["potassium", "iron"],
+                title: "Herb-Crusted Venison Strips",
+                desc: "Lean venison loin strips pan-seared with rosemary and thyme, served with roasted radishes.",
+                calories: { "1200": 390, "1500": 480, "2000": 600 },
+                portions: {
+                    "1200": ["4 oz Venison Loin", "1 cup Halved Radishes", "1.5 tsp Olive Oil"],
+                    "1500": ["5.5 oz Venison Loin", "1.5 cups Halved Radishes", "2 tsp Olive Oil"],
+                    "2000": ["7 oz Venison Loin", "2 cups Halved Radishes", "1 tbsp Olive Oil"]
+                },
+                steps: ["Toss halved radishes in olive oil and roast at 400°F for 20 minutes until tender.", "Press dried rosemary and thyme into the venison loin strips.", "Sear venison in a smoking hot skillet for 2 minutes per side for medium-rare results; let rest before slicing."]
+            },
+
+            // --- DESSERT (10 Recipes) ---
+            {
+                id: 10, mealtime: "dessert", tags: ["celiac", "diabetic"], micros: ["vit-c", "potassium"],
+                title: "Mint-Kissed Watermelon & Pineapple Medley",
+                desc: "Refreshing cubes of fresh organic watermelon and golden pineapple tossed with torn mint.",
+                calories: { "1200": 150, "1500": 210, "2000": 290 },
+                portions: {
+                    "1200": ["1 cup Watermelon Cubes", "1/2 cup Pineapple Cubes", "4 Fresh Mint Leaves"],
+                    "1500": ["1.5 cups Watermelon Cubes", "3/4 cup Pineapple Cubes", "6 Fresh Mint Leaves"],
+                    "2000": ["2 cups Watermelon Cubes", "1 cup Pineapple Cubes", "8 Fresh Mint Leaves", "1 tbsp Sunflower Seeds"]
+                },
+                steps: ["Slice fresh watermelon and pineapple cleanly into bite-sized block geometries.", "Combine both prepared fruits in a chilled ceramic serving container.", "Chop or manually tear fresh clean mint leaves into small fragments.", "Scatter mint fragments uniformly across the fruit surface layout.", "Toss gingerly and serve chilled for maximum digestive ease."]
+            },
+            {
+                id: 11, mealtime: "dessert", tags: ["low-carb", "high-protein", "celiac"], micros: ["magnesium", "calcium"],
+                title: "Dark Raspberry Almond Cream Pot",
+                desc: "Organic fresh tart raspberries pushed into whipped sugar-free protein-enriched almond mousse.",
+                calories: { "1200": 190, "1500": 250, "2000": 340 },
+                portions: {
+                    "1200": ["1/2 cup Fresh Raspberries", "1/2 cup Unsweetened Almond Yogurt", "1.5 tbsp Pea Protein Powder"],
+                    "1500": ["3/4 cup Fresh Raspberries", "3/4 cup Unsweetened Almond Yogurt", "2 tbsp Pea Protein Powder"],
+                    "2000": ["1 cup Fresh Raspberries", "1 cup Unsweetened Almond Yogurt", "2.5 tbsp Pea Protein Powder", "1 tbsp Sliced Almonds"]
+                },
+                steps: ["Force-whisk unsweetened organic almond yogurt and plain plant protein powder together until satin smooth.", "Spoon half of the whipped mousse mixture down into a serving glass basin.", "Drop down a layer of pristine whole raw raspberries.", "Layer the remaining mousse over the berries smoothly.", "Garnish with the residual fruit items and an optional almond slice dusting."]
+            },
+            {
+                id: 12, mealtime: "dessert", tags: ["diabetic", "low-carb"], micros: ["potassium", "vit-c"],
+                title: "Warm Cinnamon Apple & Banana Bake",
+                desc: "Slices of apple and organic banana dusted with spicy warm sweet cinnamon and baked light.",
+                calories: { "1200": 160, "1500": 220, "2000": 310 },
+                portions: {
+                    "1200": ["1/2 Small Organic Apple (Sliced)", "1/2 Small Organic Banana (Sliced)", "1/2 tsp Ground Cinnamon"],
+                    "1500": ["1 Small Organic Apple (Sliced)", "1/2 Large Organic Banana (Sliced)", "1/2 tsp Ground Cinnamon"],
+                    "2000": ["1 Small Organic Apple (Sliced)", "1 Full Large Organic Banana (Sliced)", "1 tsp Ground Cinnamon", "1 tsp Coconut Oil"]
+                },
+                steps: ["Core and thinly cut clean organic apples and peel bananas into clean rounds.", "Toss fruit slices together in a glass baking dish structure.", "Dust ground aromatic cinnamon powder evenly across all exposed surfaces.", "Bake inside an oven preheated to 350 degrees Fahrenheit for approximately 10 minutes.", "Consume warm using a small dessert utensil."]
+            },
+            {
+                id: 34, mealtime: "dessert", tags: ["celiac", "low-carb"], micros: ["calcium", "magnesium"],
+                title: "Vanilla Almond Panna Cotta",
+                desc: "Silky, chilled sugar-free gelatin mold crafted with organic almond milk and pure vanilla bean extract.",
+                calories: { "1200": 140, "1500": 190, "2000": 260 },
+                portions: {
+                    "1200": ["3/4 cup Almond Milk", "1/2 tsp Grass-Fed Gelatin", "Vanilla Bean Dust"],
+                    "1500": ["1 cup Almond Milk", "3/4 tsp Grass-Fed Gelatin", "Vanilla Bean Dust"],
+                    "2000": ["1.25 cups Almond Milk", "1 tsp Grass-Fed Gelatin", "Vanilla Bean Dust", "1 tbsp Chopped Almonds"]
+                },
+                steps: ["Bloom gelatin powder inside two tablespoons of cold water.", "Heat almond milk slightly until warm, then stir in bloomed gelatin and vanilla completely.", "Pour mixture into smooth ceramic ramekin layouts.", "Chill inside cooling infrastructure for three hours until set firm."]
+            },
+            {
+                id: 35, mealtime: "dessert", tags: ["high-protein", "diabetic"], micros: ["iron", "vit-d"],
+                title: "Cocoa Protein Mug Cake",
+                desc: "Moist chocolate microwave mug sponge cake whipped from egg whites and organic dark cacao powder.",
+                calories: { "1200": 180, "1500": 240, "2000": 320 },
+                portions: {
+                    "1200": ["1.5 tbsp Cocoa Powder", "1 scoop Protein Powder", "2 tbsp Egg Whites"],
+                    "1500": ["2 tbsp Cocoa Powder", "1 scoop Protein Powder", "3 tbsp Egg Whites"],
+                    "2000": ["3 tbsp Cocoa Powder", "1.25 scoops Protein Powder", "4 tbsp Egg Whites", "1 tsp Coconut Flakes"]
+                },
+                steps: ["Combine dark cocoa powder, chocolate protein powder, and fluid egg whites in a mug structure.", "Stir with a small spoon vector until a consistent paste is formed.", "Microwave on high output settings for precisely 55 seconds.", "Let cool for two minutes before consuming warm."]
+            },
+            {
+                id: 36, mealtime: "dessert", tags: ["celiac", "diabetic"], micros: ["vit-c", "potassium"],
+                title: "Chilled Blackberry Zest Sorbet",
+                desc: "An icy pureed blend of organic frozen whole wild blackberries and fresh lime juice extract.",
+                calories: { "1200": 110, "1500": 160, "2000": 220 },
+                portions: {
+                    "1200": ["3/4 cup Frozen Blackberries", "1 tsp Lime Juice", "2 tbsp Water"],
+                    "1500": ["1.25 cups Frozen Blackberries", "1.5 tsp Lime Juice", "3 tbsp Water"],
+                    "2000": ["1.75 cups Frozen Blackberries", "2 tsp Lime Juice", "4 tbsp Water"]
+                },
+                steps: ["Empty specified measurements of frozen solid blackberries into processing basin.", "Add lemon/lime extract juice and minimal dynamic moisture vectors.", "Pulse at maximum speed parameters until a uniform icy crystal format is achieved.", "Serve instantly in small glass goblets."]
+            },
+            {
+                id: 37, mealtime: "dessert", tags: ["low-carb", "high-protein"], micros: ["calcium", "magnesium"],
+                title: "Whipped Vanilla Cottage Whip",
+                desc: "Organic whipped cottage cheese aerated to smooth silk texture and mixed with crushed vanilla pods.",
+                calories: { "1200": 160, "1500": 220, "2000": 300 },
+                portions: {
+                    "1200": ["1/2 cup Cottage Cheese", "Vanilla Extract", "Stevia leaf drop"],
+                    "1500": ["3/4 cup Cottage Cheese", "Vanilla Extract", "Stevia leaf drop"],
+                    "2000": ["1 cup Cottage Cheese", "Vanilla Extract", "Stevia leaf drop", "1 tsp Chia Seeds"]
+                },
+                steps: ["Scrape curded organic cottage cheese directly into a high-speed small cup blender.", "Process continuously for 60 seconds until all granular curds turn liquid-smooth.", "Fold vanilla bean seeds and natural non-glycemic sweetener factors uniformly.", "Spoon out into chilled glassware."]
+            },
+            {
+                id: 38, mealtime: "dessert", tags: ["celiac", "low-carb"], micros: ["iron", "vit-c"],
+                title: "Toasted Sunflower Strawberry Bowls",
+                desc: "Organic fresh sliced Albion strawberries covered in lightly dry-roasted sunflower kernels.",
+                calories: { "1200": 130, "1500": 185, "2000": 250 },
+                portions: {
+                    "1200": ["3/4 cup Strawberries", "1 tsp Sunflower Seeds"],
+                    "1500": ["1.25 cups Strawberries", "2 tsp Sunflower Seeds"],
+                    "2000": ["1.75 cups Strawberries", "1 tbsp Sunflower Seeds"]
+                },
+                steps: ["Wash strawberries thoroughly and chop away the bitter green leaf caps.", "Quarter the remaining red structures cleanly into uniform wedges.", "Toss inside an appropriate dessert basin matrix.", "Scatter pre-toasted sunflower seed kernels across the top layers."]
+            },
+            {
+                id: 39, mealtime: "dessert", tags: ["diabetic", "low-carb"], micros: ["potassium", "magnesium"],
+                title: "Avocado Chocolate Mousse",
+                desc: "Rich, creamy sugar-free mousse whipped from ripe organic avocado and unsweetened dark cocoa powder.",
+                calories: { "1200": 170, "1500": 230, "2000": 310 },
+                portions: {
+                    "1200": ["1/2 Ripe Avocado", "1 tbsp Cocoa Powder", "2 tbsp Almond Milk"],
+                    "1500": ["1/2 Ripe Avocado", "1.5 tbsp Cocoa Powder", "3 tbsp Almond Milk"],
+                    "2000": ["1 Full Ripe Avocado", "2 tbsp Cocoa Powder", "4 tbsp Almond Milk"]
+                },
+                steps: ["Scoop the avocado flesh directly into a blending container.", "Add the dark cocoa powder, almond milk, and a pinch of powdered stevia.", "Blend on high until completely creamy with no green flecks remaining; chill before serving."]
+            },
+            {
+                id: 40, mealtime: "dessert", tags: ["high-protein", "celiac"], micros: ["calcium", "vit-d"],
+                title: "Blueberry Greek Yogurt Bark",
+                desc: "Frozen flat sheets of high-protein organic Greek yogurt studded with fresh wild blueberries.",
+                calories: { "1200": 150, "1500": 210, "2000": 280 },
+                portions: {
+                    "1200": ["1/2 cup Greek Yogurt", "1/4 cup Blueberries"],
+                    "1500": ["3/4 cup Greek Yogurt", "1/3 cup Blueberries"],
+                    "2000": ["1 cup Greek Yogurt", "1/2 cup Blueberries", "1 tsp Flaxseeds"]
+                },
+                steps: ["Spread plain organic Greek yogurt into a flat, thin layer on a baking sheet lined with wax paper.", "Press fresh wild blueberries evenly down into the yogurt layout surface.", "Freeze the entire structure solid for at least two hours.", "Break apart by hand into custom shard sheets and eat frozen."]
+            }
+        ];
+
+        // Track recipes currently shown to ensure serialization randomization on click loops
+        let lastGeneratedIds = [];
+
+        // Helper function to shuffle array items randomly using robust cryptographic distribution signatures
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // Core Generation Logic
+        function generateMeals(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('filterForm');
+            const selectedDiets = Array.from(form.querySelectorAll('input[name="diet"]:checked')).map(cb => cb.value);
+            const selectedCalories = form.querySelector('input[name="calories"]:checked').value;
+            const selectedNutrients = Array.from(form.querySelectorAll('input[name="nutrient"]:checked')).map(cb => cb.value);
+            const selectedMealtime = form.querySelector('input[name="mealtime"]:checked').value;
+
+            // Prepare Summary Text for the export header layout
+            const profileText = selectedDiets.length > 0 ? selectedDiets.join(', ').toUpperCase() : 'NONE SELECTED';
+            const nutrientText = selectedNutrients.length > 0 ? selectedNutrients.join(', ').toUpperCase() : 'NONE SELECTED';
+            document.getElementById('summaryText').innerHTML = `<strong>Selected Filters:</strong> Profiles: [${profileText}] | Target Calorie Tier: [~${selectedCalories} kcal/day] | Vital Target Focuses: [${nutrientText}] | Category: [${selectedMealtime.toUpperCase()}]`;
+
+            // Filter database dynamically based on form criteria
+            let matches = recipesDatabase.filter(recipe => recipe.mealtime === selectedMealtime);
+
+            if (selectedDiets.length > 0) {
+                matches = matches.filter(recipe => {
+                    return selectedDiets.every(diet => recipe.tags.includes(diet));
+                });
+            }
+
+            if (selectedNutrients.length > 0) {
+                matches = matches.filter(recipe => {
+                    return selectedNutrients.some(nut => recipe.micros.includes(nut));
+                });
+            }
+
+            // Fallback Engine: Ensure items are always returned to avoid empty results
+            if (matches.length < 3) {
+                const globalFallbacks = recipesDatabase.filter(r => r.mealtime === selectedMealtime);
+                const uniqueFallbacks = globalFallbacks.filter(r => !matches.some(m => m.id === r.id));
+                matches = [...matches, ...uniqueFallbacks];
+            }
+
+            // Randomize whole filter array to pull varying distinct indexes on successive submit interactions
+            let freshOptions = shuffle([...matches]);
+
+            // Filter out items displayed in the immediate previous run if pool sizing allows distinct variations
+            if (freshOptions.length > 3) {
+                const unreadOptions = freshOptions.filter(r => !lastGeneratedIds.includes(r.id));
+                if (unreadOptions.length >= 3) {
+                    freshOptions = unreadOptions;
+                }
+            }
+
+            // Slice out precisely 3 recipes maximum
+            const ultimateSelection = freshOptions.slice(0, 3);
+            
+            // Record current IDs to force alternate distributions during subsequent iterations
+            lastGeneratedIds = ultimateSelection.map(r => r.id);
+            
+            // Build and display output UI structures dynamically
+            renderRecipes(ultimateSelection, selectedCalories);
+        }
+
+        // Isolate single card container elements and trigger programmatic targeted media print cycles
+        function exportSingleRecipe(buttonElement, recipeId) {
+            const allCards = document.querySelectorAll('.recipe-card');
+            allCards.forEach(card => card.classList.remove('print-target'));
+
+            const specificCard = buttonElement.closest('.recipe-card');
+            specificCard.classList.add('print-target');
+
+            window.print();
+        }
+
+        function renderRecipes(recipes, calorieTarget) {
+            const container = document.getElementById('recipeContainer');
+            container.innerHTML = '';
+
+            recipes.forEach(recipe => {
+                const specificCal = recipe.calories[calorieTarget] || recipe.calories["1500"];
+                const ingredientsList = recipe.portions[calorieTarget] || recipe.portions["1500"];
+                
+                let ingredientsHTML = '';
+                ingredientsList.forEach(ing => {
+                    ingredientsHTML += `<li class="flex items-start gap-2 text-xs text-[#555550]">
+                        <span class="text-[#D4A373] mt-0.5">•</span>
+                        <span>${ing}</span>
+                    </li>`;
+                });
+
+                let stepsHTML = '';
+                recipe.steps.forEach((step, index) => {
+                    stepsHTML += `<div class="flex gap-3 items-start">
+                        <span class="flex items-center justify-center w-5 h-5 bg-[#F4F4F2] text-[#1A1A18] font-bold text-[10px] rounded-full shrink-0 mt-0.5">${index + 1}</span>
+                        <p class="text-xs text-[#555550] leading-relaxed">${step}</p>
+                    </div>`;
+                });
+
+                const cardHTML = `
+                    <div class="bg-white border border-[#EAEAEA] rounded-2xl overflow-hidden shadow-sm flex flex-col recipe-card p-5">
+                        <!-- Details Content Area -->
+                        <div class="flex-1 flex flex-col">
+                            <div class="flex justify-between items-start gap-2 mb-2">
+                                <h4 class="font-bold text-base text-[#1A1A18] leading-tight">${recipe.title}</h4>
+                                <span class="text-xs font-extrabold bg-[#FEFBF7] text-[#D4A373] px-2.5 py-1 border border-[#F5E6D3] rounded-lg shrink-0">
+                                    ${specificCal} kcal
+                                </span>
+                            </div>
+                            <p class="text-xs text-[#7A7A75] mb-4 leading-relaxed">${recipe.desc}</p>
+                            
+                            <!-- Portion Blocks -->
+                            <div class="mb-4 bg-[#FBFBFA] border border-[#F4F4F2] rounded-xl p-4">
+                                <h5 class="text-[11px] font-bold uppercase tracking-wider text-[#1A1A18] mb-2.5">Portions & Ingredients</h5>
+                                <ul class="space-y-1.5">
+                                    ${ingredientsHTML}
+                                </ul>
+                            </div>
+                            
+                            <!-- Step Vectors -->
+                            <div class="mb-5">
+                                <h5 class="text-[11px] font-bold uppercase tracking-wider text-[#1A1A18] mb-3">Preparation Steps</h5>
+                                <div class="space-y-3">
+                                    ${stepsHTML}
+                                </div>
+                            </div>
+
+                            <!-- Isolated Print Action Button -->
+                            <div class="mt-auto pt-2 border-t border-[#F4F4F2] no-print">
+                                <button onclick="exportSingleRecipe(this, ${recipe.id})" class="w-full flex items-center justify-center gap-2 px-3 py-2 border border-[#CDCDCA] text-[#4A4A45] hover:bg-[#F4F4F2] text-xs font-semibold rounded-xl transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    Save & Export Recipe
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+
+            // Reveal results matrix dynamically
+            document.getElementById('resultsWrapper').classList.remove('hidden');
+            
+            // Auto scroll container area gently down into view field
+            document.getElementById('resultsWrapper').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
