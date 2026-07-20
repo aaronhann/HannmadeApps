@@ -61,132 +61,132 @@
 
     <!-- Header -->
     <header class="border-b border-[#EAEAEA] bg-white sticky top-0 z-50 shrink-0">
-        <div class="max-w-5xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 bg-[#D4A373] rounded-full"></span>
-                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-[#1A1A18] brand-font">Errands Meal Prep</h1>
+        <div class="max-w-5xl mx-auto px-4 py-2 sm:py-4 flex justify-between items-center">
+            <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-[#D4A373] rounded-full"></span>
+                <h1 class="text-base sm:text-xl font-bold tracking-tight text-[#1A1A18] brand-font">Errands Meal Prep</h1>
             </div>
-            <span class="text-[10px] sm:text-xs font-medium text-[#7A7A75] bg-[#F4F4F2] px-2.5 py-1 rounded-full">Organic & Whole Foods</span>
+            <span class="text-[9px] sm:text-xs font-medium text-[#7A7A75] bg-[#F4F4F2] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">Organic & Whole Foods</span>
         </div>
     </header>
 
-    <!-- Main Content Container with dynamic sizing to prevent mobile screen clipping -->
-    <main class="max-w-5xl w-full mx-auto px-4 py-4 sm:px-6 sm:py-8 flex-1 flex flex-col justify-start">
+    <!-- Main Content Container with optimized density for mobile screens -->
+    <main class="max-w-5xl w-full mx-auto px-3 py-3 sm:px-6 sm:py-8 flex-1 flex flex-col justify-start">
         
         <!-- Intro -->
-        <div class="mb-4 sm:mb-6 text-center max-w-2xl mx-auto no-print shrink-0">
-            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1A1A18] mb-1">Custom Meal Planner</h2>
-            <p class="text-[#666660] text-[11px] sm:text-xs leading-relaxed">
-                Select your parameters below to generate 3 tailored, nutrient-dense recipes built around fresh meats, seafood, and organic produce.
+        <div class="mb-3 sm:mb-6 text-center max-w-2xl mx-auto no-print shrink-0">
+            <h2 class="text-lg sm:text-2xl font-bold tracking-tight text-[#1A1A18] mb-0.5">Custom Meal Planner</h2>
+            <p class="text-[#666660] text-[10px] sm:text-xs leading-relaxed">
+                Select parameters below to generate 3 tailored, nutrient-dense recipes built around fresh meats, seafood, and organic produce.
             </p>
         </div>
 
-        <!-- Configuration Panel -->
-        <div class="bg-white border border-[#EAEAEA] rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-sm mb-6 no-print">
-            <form id="filterForm" onsubmit="generateMeals(event)" class="space-y-4 sm:space-y-6">
+        <!-- Configuration Panel - Compact scaling to guarantee visibility on mobile viewports without scrolling -->
+        <div class="bg-white border border-[#EAEAEA] rounded-xl p-3 sm:p-6 shadow-sm mb-4 no-print">
+            <form id="filterForm" onsubmit="generateMeals(event)" class="space-y-3 sm:space-y-6">
                 
                 <!-- Filter 3: Meal Time Timeline (Moved to Top) -->
                 <div>
-                    <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-2 text-center md:text-left">Meal Schedule Category</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
-                        <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                    <label class="block text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-1.5 text-center md:text-left">Meal Schedule Category</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
+                        <label class="border border-[#EAEAEA] rounded-lg p-1.5 sm:p-2 flex items-center justify-center gap-1.5 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                             <input type="radio" name="mealtime" value="breakfast" checked class="sr-only">
-                            <span class="text-xs font-semibold">Breakfast</span>
+                            <span class="text-[11px] sm:text-xs font-semibold">Breakfast</span>
                         </label>
-                        <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                        <label class="border border-[#EAEAEA] rounded-lg p-1.5 sm:p-2 flex items-center justify-center gap-1.5 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                             <input type="radio" name="mealtime" value="lunch" class="sr-only">
-                            <span class="text-xs font-semibold">Lunch</span>
+                            <span class="text-[11px] sm:text-xs font-semibold">Lunch</span>
                         </label>
-                        <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                        <label class="border border-[#EAEAEA] rounded-lg p-1.5 sm:p-2 flex items-center justify-center gap-1.5 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                             <input type="radio" name="mealtime" value="supper" class="sr-only">
-                            <span class="text-xs font-semibold">Supper</span>
+                            <span class="text-[11px] sm:text-xs font-semibold">Supper</span>
                         </label>
-                        <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                        <label class="border border-[#EAEAEA] rounded-lg p-1.5 sm:p-2 flex items-center justify-center gap-1.5 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                             <input type="radio" name="mealtime" value="dessert" class="sr-only">
-                            <span class="text-xs font-semibold">Dessert</span>
+                            <span class="text-[11px] sm:text-xs font-semibold">Dessert</span>
                         </label>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
                     
                     <!-- Filter 1: Dietary Profiles -->
                     <div>
-                        <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-0.5">Dietary Profiles</label>
-                        <span class="text-[10px] sm:text-[11px] text-[#7A7A75] block mb-2">Select up to 3 profiles</span>
-                        <div class="grid grid-cols-2 gap-1.5" id="dietaryGroup">
-                            <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
-                                <input type="checkbox" name="diet" value="celiac" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
+                        <label class="block text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-0.5">Dietary Profiles</label>
+                        <span class="text-[9px] sm:text-[11px] text-[#7A7A75] block mb-1">Select up to 3 profiles</span>
+                        <div class="grid grid-cols-2 gap-1" id="dietaryGroup">
+                            <label class="flex items-center gap-1.5 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] transition-colors text-[11px]">
+                                <input type="checkbox" name="diet" value="celiac" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3 h-3">
                                 <span class="font-medium">Celiac Friendly</span>
                             </label>
-                            <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
-                                <input type="checkbox" name="diet" value="diabetic" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
+                            <label class="flex items-center gap-1.5 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] transition-colors text-[11px]">
+                                <input type="checkbox" name="diet" value="diabetic" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3 h-3">
                                 <span class="font-medium">Diabetic Friendly</span>
                             </label>
-                            <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
-                                <input type="checkbox" name="diet" value="high-protein" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
+                            <label class="flex items-center gap-1.5 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] transition-colors text-[11px]">
+                                <input type="checkbox" name="diet" value="high-protein" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3 h-3">
                                 <span class="font-medium">High Protein</span>
                             </label>
-                            <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
-                                <input type="checkbox" name="diet" value="low-carb" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
+                            <label class="flex items-center gap-1.5 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] transition-colors text-[11px]">
+                                <input type="checkbox" name="diet" value="low-carb" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3 h-3">
                                 <span class="font-medium">Low Carb</span>
                             </label>
                         </div>
                     </div>
 
                     <!-- Filter 2: Caloric Range & Micronutrients -->
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         <div>
-                            <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-2">Daily Calorie Target</label>
-                            <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
-                                <label class="border border-[#EAEAEA] rounded-xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                            <label class="block text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-1">Daily Calorie Target</label>
+                            <div class="grid grid-cols-3 gap-1 sm:gap-2">
+                                <label class="border border-[#EAEAEA] rounded-lg p-1 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                                     <input type="radio" name="calories" value="1200" checked class="sr-only">
-                                    <span class="text-xs font-bold text-[#1A1A18]">~1200</span>
-                                    <span class="text-[8px] sm:text-[9px] text-[#7A7A75] mt-0.5">kcal/day</span>
+                                    <span class="text-[11px] font-bold text-[#1A1A18]">~1200</span>
+                                    <span class="text-[8px] text-[#7A7A75]">kcal/day</span>
                                 </label>
-                                <label class="border border-[#EAEAEA] rounded-xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                                <label class="border border-[#EAEAEA] rounded-lg p-1 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                                     <input type="radio" name="calories" value="1500" class="sr-only">
-                                    <span class="text-xs font-bold text-[#1A1A18]">~1500</span>
-                                    <span class="text-[8px] sm:text-[9px] text-[#7A7A75] mt-0.5">kcal/day</span>
+                                    <span class="text-[11px] font-bold text-[#1A1A18]">~1500</span>
+                                    <span class="text-[8px] text-[#7A7A75]">kcal/day</span>
                                 </label>
-                                <label class="border border-[#EAEAEA] rounded-xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                                <label class="border border-[#EAEAEA] rounded-lg p-1 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                                     <input type="radio" name="calories" value="2000" class="sr-only">
-                                    <span class="text-xs font-bold text-[#1A1A18]">~2000</span>
-                                    <span class="text-[8px] sm:text-[9px] text-[#7A7A75] mt-0.5">kcal/day</span>
+                                    <span class="text-[11px] font-bold text-[#1A1A18]">~2000</span>
+                                    <span class="text-[8px] text-[#7A7A75]">kcal/day</span>
                                 </label>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-0.5">Micronutrient Richness</label>
-                            <span class="text-[10px] sm:text-[11px] text-[#7A7A75] block mb-2">Select up to 3 targets</span>
-                            <div class="grid grid-cols-2 gap-1.5" id="nutrientGroup">
-                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
-                                    <input type="checkbox" name="nutrient" value="magnesium" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                            <label class="block text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-0.5">Micronutrient Richness</label>
+                            <span class="text-[9px] sm:text-[11px] text-[#7A7A75] block mb-1">Select up to 3 targets</span>
+                            <div class="grid grid-cols-2 gap-1" id="nutrientGroup">
+                                <label class="flex items-center gap-1.5 p-1 border border-[#EAEAEA] rounded-md cursor-pointer hover:bg-[#FDFDFB] text-[10px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="magnesium" class="rounded text-[#D4A373] border-[#CDCDCA] w-2.5 h-2.5">
                                     <span>Magnesium</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
-                                    <input type="checkbox" name="nutrient" value="b12" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                <label class="flex items-center gap-1.5 p-1 border border-[#EAEAEA] rounded-md cursor-pointer hover:bg-[#FDFDFB] text-[10px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="b12" class="rounded text-[#D4A373] border-[#CDCDCA] w-2.5 h-2.5">
                                     <span>Vitamin B12</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
-                                    <input type="checkbox" name="nutrient" value="potassium" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                <label class="flex items-center gap-1.5 p-1 border border-[#EAEAEA] rounded-md cursor-pointer hover:bg-[#FDFDFB] text-[10px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="potassium" class="rounded text-[#D4A373] border-[#CDCDCA] w-2.5 h-2.5">
                                     <span>Potassium</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
-                                    <input type="checkbox" name="nutrient" value="iron" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                <label class="flex items-center gap-1.5 p-1 border border-[#EAEAEA] rounded-md cursor-pointer hover:bg-[#FDFDFB] text-[10px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="iron" class="rounded text-[#D4A373] border-[#CDCDCA] w-2.5 h-2.5">
                                     <span>Iron</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
-                                    <input type="checkbox" name="nutrient" value="calcium" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                <label class="flex items-center gap-1.5 p-1 border border-[#EAEAEA] rounded-md cursor-pointer hover:bg-[#FDFDFB] text-[10px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="calcium" class="rounded text-[#D4A373] border-[#CDCDCA] w-2.5 h-2.5">
                                     <span>Calcium</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
-                                    <input type="checkbox" name="nutrient" value="vit-d" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                <label class="flex items-center gap-1.5 p-1 border border-[#EAEAEA] rounded-md cursor-pointer hover:bg-[#FDFDFB] text-[10px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="vit-d" class="rounded text-[#D4A373] border-[#CDCDCA] w-2.5 h-2.5">
                                     <span>Vitamin D</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
-                                    <input type="checkbox" name="nutrient" value="vit-c" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
+                                <label class="flex items-center gap-1.5 p-1 border border-[#EAEAEA] rounded-md cursor-pointer hover:bg-[#FDFDFB] text-[10px] font-medium">
+                                    <input type="checkbox" name="nutrient" value="vit-c" class="rounded text-[#D4A373] border-[#CDCDCA] w-2.5 h-2.5">
                                     <span>Vitamin C</span>
                                 </label>
                             </div>
@@ -194,9 +194,9 @@
                     </div>
                 </div>
 
-                <!-- Submit Action with optimized tap targeting and vertical layout cushion for mobile devices -->
-                <div class="text-center border-t border-[#F4F4F2] pt-4 pb-2">
-                    <button type="submit" class="w-full sm:w-auto px-8 py-3.5 sm:py-2.5 bg-[#1A1A18] hover:bg-[#2D2D29] active:bg-[#3D3D39] text-white font-semibold text-xs rounded-xl shadow-md transition-all transform active:scale-[0.98] sm:hover:-translate-y-0.5 touch-manipulation">
+                <!-- Submit Action - Maintained visibility with safe sizing buffers -->
+                <div class="text-center border-t border-[#F4F4F2] pt-3">
+                    <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-[#1A1A18] hover:bg-[#2D2D29] active:bg-[#3D3D39] text-white font-semibold text-xs rounded-xl shadow-md transition-all transform active:scale-[0.98] sm:hover:-translate-y-0.5 touch-manipulation">
                         Generate Balanced Plan
                     </button>
                 </div>
@@ -502,7 +502,7 @@
                 portions: {
                     "1200": ["4 oz Grass-Fed Sirloin", "8 Asparagus Spears", "1.5 tsp Coconut Oil", "Sea Salt & Garlic Powder to taste"],
                     "1500": ["5.5 oz Grass-Fed Sirloin", "12 Asparagus Spears", "2 tsp Coconut Oil", "Sea Salt & Garlic Powder"],
-                    "2000": ["7.5 oz Grass-Fed Sirloin", "15 Asparagus Spears", "1 tbsp Coconut Oil", "Sea Salt & Garlic Powder"]
+                    "2000": ["7.5 oz Grass-Fed Sirloin", "15 Asparavas Spears", "1 tbsp Coconut Oil", "Sea Salt & Garlic Powder"]
                 },
                 steps: ["Bring steak to ambient room temperature and apply sea salt and granulated garlic dust.", "Melt coconut oil within a heavy cast iron pan architecture under high thermal output.", "Lay steak down; sear for roughly 3 minutes per side for medium-rare profile. Extract to rest.", "Reduce flame slightly, add asparagus spears directly into the remaining hot steak juices.", "Sauté asparagus for 4 minutes until bright emerald and tender-crisp."]
             },
