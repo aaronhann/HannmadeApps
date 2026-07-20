@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Errands Meal Prep</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -57,38 +57,38 @@
         }
     </style>
 </head>
-<body class="bg-[#FBFBFA] text-[#333330] min-h-screen antialiased">
+<body class="bg-[#FBFBFA] text-[#333330] min-h-screen antialiased flex flex-col">
 
     <!-- Header -->
-    <header class="border-b border-[#EAEAEA] bg-white sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+    <header class="border-b border-[#EAEAEA] bg-white sticky top-0 z-50 shrink-0">
+        <div class="max-w-5xl mx-auto px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <span class="w-3 h-3 bg-[#D4A373] rounded-full"></span>
-                <h1 class="text-xl font-bold tracking-tight text-[#1A1A18] brand-font">Errands Meal Prep</h1>
+                <span class="w-2.5 h-2.5 bg-[#D4A373] rounded-full"></span>
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-[#1A1A18] brand-font">Errands Meal Prep</h1>
             </div>
-            <span class="text-xs font-medium text-[#7A7A75] bg-[#F4F4F2] px-3 py-1 rounded-full">Organic & Whole Foods</span>
+            <span class="text-[10px] sm:text-xs font-medium text-[#7A7A75] bg-[#F4F4F2] px-2.5 py-1 rounded-full">Organic & Whole Foods</span>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-5xl mx-auto px-6 py-8">
+    <!-- Main Content Container with dynamic sizing to prevent mobile screen clipping -->
+    <main class="max-w-5xl w-full mx-auto px-4 py-4 sm:px-6 sm:py-8 flex-1 flex flex-col justify-start">
         
         <!-- Intro -->
-        <div class="mb-6 text-center max-w-2xl mx-auto no-print">
-            <h2 class="text-2xl font-bold tracking-tight text-[#1A1A18] mb-2">Custom Meal Planner</h2>
-            <p class="text-[#666660] text-xs leading-relaxed">
+        <div class="mb-4 sm:mb-6 text-center max-w-2xl mx-auto no-print shrink-0">
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1A1A18] mb-1">Custom Meal Planner</h2>
+            <p class="text-[#666660] text-[11px] sm:text-xs leading-relaxed">
                 Select your parameters below to generate 3 tailored, nutrient-dense recipes built around fresh meats, seafood, and organic produce.
             </p>
         </div>
 
         <!-- Configuration Panel -->
-        <div class="bg-white border border-[#EAEAEA] rounded-2xl p-4 md:p-6 shadow-sm mb-8 no-print">
-            <form id="filterForm" onsubmit="generateMeals(event)">
+        <div class="bg-white border border-[#EAEAEA] rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-sm mb-6 no-print">
+            <form id="filterForm" onsubmit="generateMeals(event)" class="space-y-4 sm:space-y-6">
                 
                 <!-- Filter 3: Meal Time Timeline (Moved to Top) -->
-                <div class="mb-4 pb-4 border-b border-[#F4F4F2]">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-2 text-center md:text-left">Meal Schedule Category</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-2 text-center md:text-left">Meal Schedule Category</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                         <label class="border border-[#EAEAEA] rounded-xl p-2 flex items-center justify-center gap-2 cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                             <input type="radio" name="mealtime" value="breakfast" checked class="sr-only">
                             <span class="text-xs font-semibold">Breakfast</span>
@@ -108,12 +108,12 @@
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     
                     <!-- Filter 1: Dietary Profiles -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-1">Dietary Profiles</label>
-                        <span class="text-[11px] text-[#7A7A75] block mb-2">Select up to 3 profiles</span>
+                        <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-0.5">Dietary Profiles</label>
+                        <span class="text-[10px] sm:text-[11px] text-[#7A7A75] block mb-2">Select up to 3 profiles</span>
                         <div class="grid grid-cols-2 gap-1.5" id="dietaryGroup">
                             <label class="flex items-center gap-2 p-2 border border-[#EAEAEA] rounded-xl cursor-pointer hover:bg-[#FDFDFB] transition-colors text-xs">
                                 <input type="checkbox" name="diet" value="celiac" class="rounded text-[#D4A373] focus:ring-[#D4A373] border-[#CDCDCA] w-3.5 h-3.5">
@@ -137,29 +137,29 @@
                     <!-- Filter 2: Caloric Range & Micronutrients -->
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-2">Daily Calorie Target</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <label class="border border-[#EAEAEA] rounded-xl p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                            <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-2">Daily Calorie Target</label>
+                            <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
+                                <label class="border border-[#EAEAEA] rounded-xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                                     <input type="radio" name="calories" value="1200" checked class="sr-only">
                                     <span class="text-xs font-bold text-[#1A1A18]">~1200</span>
-                                    <span class="text-[9px] text-[#7A7A75] mt-0.5">kcal / day</span>
+                                    <span class="text-[8px] sm:text-[9px] text-[#7A7A75] mt-0.5">kcal/day</span>
                                 </label>
-                                <label class="border border-[#EAEAEA] rounded-xl p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                                <label class="border border-[#EAEAEA] rounded-xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                                     <input type="radio" name="calories" value="1500" class="sr-only">
                                     <span class="text-xs font-bold text-[#1A1A18]">~1500</span>
-                                    <span class="text-[9px] text-[#7A7A75] mt-0.5">kcal / day</span>
+                                    <span class="text-[8px] sm:text-[9px] text-[#7A7A75] mt-0.5">kcal/day</span>
                                 </label>
-                                <label class="border border-[#EAEAEA] rounded-xl p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
+                                <label class="border border-[#EAEAEA] rounded-xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FDFDFB] transition-all has-[:checked]:border-[#D4A373] has-[:checked]:bg-[#FEFBF7]">
                                     <input type="radio" name="calories" value="2000" class="sr-only">
                                     <span class="text-xs font-bold text-[#1A1A18]">~2000</span>
-                                    <span class="text-[9px] text-[#7A7A75] mt-0.5">kcal / day</span>
+                                    <span class="text-[8px] sm:text-[9px] text-[#7A7A75] mt-0.5">kcal/day</span>
                                 </label>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-1">Micronutrient Richness</label>
-                            <span class="text-[11px] text-[#7A7A75] block mb-2">Select up to 3 targets</span>
+                            <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-0.5">Micronutrient Richness</label>
+                            <span class="text-[10px] sm:text-[11px] text-[#7A7A75] block mb-2">Select up to 3 targets</span>
                             <div class="grid grid-cols-2 gap-1.5" id="nutrientGroup">
                                 <label class="flex items-center gap-2 p-1.5 border border-[#EAEAEA] rounded-lg cursor-pointer hover:bg-[#FDFDFB] text-[11px] font-medium">
                                     <input type="checkbox" name="nutrient" value="magnesium" class="rounded text-[#D4A373] border-[#CDCDCA] w-3 h-3">
@@ -194,9 +194,9 @@
                     </div>
                 </div>
 
-                <!-- Submit Action -->
-                <div class="text-center border-t border-[#F4F4F2] pt-4">
-                    <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-[#1A1A18] hover:bg-[#2D2D29] text-white font-semibold text-xs rounded-xl shadow-sm transition-all transform hover:-translate-y-0.5">
+                <!-- Submit Action with optimized tap targeting and vertical layout cushion for mobile devices -->
+                <div class="text-center border-t border-[#F4F4F2] pt-4 pb-2">
+                    <button type="submit" class="w-full sm:w-auto px-8 py-3.5 sm:py-2.5 bg-[#1A1A18] hover:bg-[#2D2D29] active:bg-[#3D3D39] text-white font-semibold text-xs rounded-xl shadow-md transition-all transform active:scale-[0.98] sm:hover:-translate-y-0.5 touch-manipulation">
                         Generate Balanced Plan
                     </button>
                 </div>
@@ -217,7 +217,7 @@
             </div>
 
             <!-- Dynamic Recipe Container (3 Results) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="recipeContainer"></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12" id="recipeContainer"></div>
         </div>
     </main>
 
@@ -710,7 +710,7 @@
                     "1500": ["1.25 cups Strawberries", "2 tsp Sunflower Seeds"],
                     "2000": ["1.75 cups Strawberries", "1 tbsp Sunflower Seeds"]
                 },
-                steps: ["Wash strawberries thoroughly and chop away the bitter green leaf caps.", "Quarter the remaining red structures cleanly into uniform wedges.", "Toss inside an appropriate dessert basin matrix.", "Scatter pre-toasted sunflower seed kernels across the top layers."]
+                steps: ["Warm strawberries thoroughly and chop away the bitter green leaf caps.", "Quarter the remaining red structures cleanly into uniform wedges.", "Toss inside an appropriate dessert basin matrix.", "Scatter pre-toasted sunflower seed kernels across the top layers."]
             },
             {
                 id: 39, mealtime: "dessert", tags: ["diabetic", "low-carb"], micros: ["potassium", "magnesium"],
