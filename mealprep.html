@@ -6,6 +6,8 @@
     <title>Errands Meal Prep</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas for JPEG export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         
@@ -33,7 +35,7 @@
             }
             main {
                 padding: 0 !important;
-                max-w: 100% !important;
+                max-width: 100% !important;
             }
             #resultsWrapper {
                 display: block !important;
@@ -51,6 +53,7 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 display: flex !important;
+                overflow: visible !important;
             }
         }
     </style>
@@ -88,7 +91,7 @@
                     <input type="hidden" id="tastyAppId" value="default-application_12171900">
                     <input type="hidden" id="tastyApiKey" value="f3a2dfb0c9mshd41fdeb18282b83p11611cjsn25350c0787a9">
 
-                    <!-- Filter: Meal Schedule Category (Break, Lunch, Supper, Snack mapped to high-yield Tasty search queries) -->
+                    <!-- Filter: Meal Schedule Category -->
                     <div>
                         <label class="block text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-1.5 text-center md:text-left">Meal Schedule Category</label>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
@@ -113,7 +116,7 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
                         
-                        <!-- Filter: Dietary Profiles (Focused on Celiac & Diabetic Friendly, Keto, High Protein/Low Carb) -->
+                        <!-- Filter: Dietary Profiles -->
                         <div>
                             <label class="block text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-0.5">Special Dietary Requirements</label>
                             <span class="text-[9px] sm:text-[11px] text-[#7A7A75] block mb-1">Select up to 3 preferences</span>
@@ -137,7 +140,7 @@
                             </div>
                         </div>
 
-                        <!-- Filter: Micronutrients (Calories section completely removed per instructions) -->
+                        <!-- Filter: Micronutrients -->
                         <div class="space-y-3">
                             <div>
                                 <label class="block text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#1A1A18] mb-0.5">Micronutrient Richness</label>
@@ -209,7 +212,7 @@
     <!-- Persistent visual safety gap at the base -->
     <div class="w-full h-24 sm:h-12 shrink-0 no-print"></div>
 
-    <!-- Script Content with Guaranteed Tasty API Query Mapping -->
+    <!-- Script Content -->
     <script>
         const dietaryGroup = document.getElementById('dietaryGroup');
         const checkboxes = dietaryGroup.querySelectorAll('input[type="checkbox"]');
@@ -252,7 +255,6 @@
             const profileText = selectedDiets.length > 0 ? selectedDiets.join(', ').toUpperCase() : 'NONE SELECTED';
             document.getElementById('summaryText').innerHTML = `<strong>Selected Live Filters:</strong> Category: [${selectedMealtime.toUpperCase()}] | Keywords: [${profileText}]`;
 
-            // Broad-compatible search terms that successfully trigger results on the Tasty API
             let baseQuery = selectedMealtime;
             if (selectedDiets.length > 0) {
                 baseQuery += ` ${selectedDiets.join(' ')}`;
@@ -282,7 +284,6 @@
                 const data = await response.json();
                 let results = data.results || [];
                 
-                // Fallback secondary query if exact multi-tag search yields empty results from Tasty
                 if (results.length === 0 && selectedDiets.length > 0) {
                     let fallbackQuery = selectedDiets[0];
                     let fallbackUrl = `https://tasty.p.rapidapi.com/recipes/list?from=0&size=40&q=${encodeURIComponent(fallbackQuery)}`;
@@ -332,13 +333,22 @@
         }
 
         function exportSingleRecipe(buttonElement, recipeId) {
-            const allCards = document.querySelectorAll('.recipe-card');
-            allCards.forEach(card => card.classList.remove('print-target'));
-
             const specificCard = buttonElement.closest('.recipe-card');
-            specificCard.classList.add('print-target');
-
-            window.print();
+            
+            // Use html2canvas to render the card directly into a JPEG download
+            html2canvas(specificCard, {
+                useCORS: true,
+                scale: 2,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `recipe-${recipeId}.jpeg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            }).catch(err => {
+                console.error("Export error:", err);
+                alert("Could not export recipe as JPEG.");
+            });
         }
 
         function renderTastyRecipes(recipes) {
@@ -416,18 +426,18 @@
                                     ${calories} kcal
                                 </span>
                             </div>
-                            <p class="text-xs text-[#7A7A75] mb-4 leading-relaxed line-clamp-2">${description}</p>
+                            <p class="text-xs text-[#7A7A75] mb-4 leading-relaxed">${description}</p>
                             
                             <div class="mb-4 bg-[#FBFBFA] border border-[#F4F4F2] rounded-xl p-4">
                                 <h5 class="text-[11px] font-bold uppercase tracking-wider text-[#1A1A18] mb-2.5">Portions & Ingredients</h5>
-                                <ul class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                                <ul class="space-y-1.5 pr-1">
                                     ${ingredientsHTML}
                                 </ul>
                             </div>
                             
                             <div class="mb-5">
                                 <h5 class="text-[11px] font-bold uppercase tracking-wider text-[#1A1A18] mb-3">Preparation Steps</h5>
-                                <div class="space-y-3 max-h-48 overflow-y-auto pr-1">
+                                <div class="space-y-3 pr-1">
                                     ${stepsHTML}
                                 </div>
                             </div>
