@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hann-Made Apps</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .dashboard.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            background: linear-gradient(to right, #3b82f6, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* App Grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            margin-bottom: 4rem;
+        }
+
+        .app-card {
+            background-color: var(--card-bg);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .app-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+        }
+
+        .app-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .app-card:hover .app-icon {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .app-card h3 {
+            font-size: 1.35rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .app-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .launch-btn {
+            margin-top: auto;
+            color: var(--accent-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Support & Social Links */
+        .footer-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            width: 100%;
+            border-top: 1px solid #334155;
+            padding-top: 2rem;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-facebook {
+            background-color: #1877f2;
+            color: white;
+        }
+        .btn-facebook:hover { background-color: #166fe5; transform: scale(1.03); }
+
+        .btn-bmc {
+            background-color: #ffdd00;
+            color: #000000;
+        }
+        .btn-bmc:hover { background-color: #ffea00; transform: scale(1.03); }
+
+        .btn-btc {
+            background-color: #f7931a;
+            color: white;
+        }
+        .btn-btc:hover { background-color: #e38112; transform: scale(1.03); }
+
+        /* Fullscreen Viewport Layer */
+        .app-viewport {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .app-viewport.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .viewport-bar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid #334155;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .viewport-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .exit-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .exit-btn:hover {
+            background-color: #dc2626;
+        }
+
+        iframe {
+            width: 100%;
+            flex: 1;
+            border: none;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Entry Dashboard -->
+    <div class="dashboard" id="mainDashboard">
+        <header>
+            <h1>Hann-Made Apps</h1>
+            <p>Select an application to launch it instantly</p>
+        </header>
+
+        <div class="app-grid">
+            <!-- Family Tree App -->
+            <div class="app-card" onclick="launchApp('familytree.html', 'Family Tree Builder')">
+                <div class="app-icon"><i class="fa-solid fa-sitemap"></i></div>
+                <h3>Family Tree Builder</h3>
+                <p>Map layout connections across generations with interactive line visualization and tracking utilities.</p>
+                <div class="launch-btn">Launch App <i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+
+            <!-- Photo Collage App -->
+            <div class="app-card" onclick="launchApp('photobook.html', 'Photo Collage Generator')">
+                <div class="app-icon"><i class="fa-solid fa-images"></i></div>
+                <h3>Photo Collage Generator</h3>
+                <p>Arrange and layer custom uploaded images smoothly across layouts with responsive positioning canvas structures.</p>
+                <div class="launch-btn">Launch App <i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+
+            <!-- Meal Prep App -->
+            <div class="app-card" onclick="launchApp('mealprep.html', 'Meal Prep Planner')">
+                <div class="app-icon"><i class="fa-solid fa-utensils"></i></div>
+                <h3>Meal Prep Planner</h3>
+                <p>Organize, schedule, and configure dynamic portion balances and menu items for dietary planning setups.</p>
+                <div class="launch-btn">Launch App <i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+        </div>
+
+        <!-- Social & Contribution Links -->
+        <div class="footer-actions">
+            <!-- Facebook Link -->
+            <a href="https://www.facebook.com" target="_blank" class="action-btn btn-facebook">
+                <i class="fa-brands fa-facebook"></i> Follow on Facebook
+            </a>
+            
+            <!-- Buy Me A Coffee Link -->
+            <a href="https://www.buymeacoffee.com" target="_blank" class="action-btn btn-bmc">
+                <i class="fa-solid fa-coffee"></i> Support on Buy Me a Coffee
+            </a>
+
+            <!-- Bitcoin Donation Button -->
+            <button onclick="showBtcAddress()" class="action-btn btn-btc">
+                <i class="fa-brands fa-bitcoin"></i> Donate Bitcoin
+            </button>
+        </div>
+    </div>
+
+    <!-- Fullscreen Live App Container Layer -->
+    <div class="app-viewport" id="appViewport">
+        <div class="viewport-bar">
+            <div class="viewport-title" id="currentAppTitle">
+                <i class="fa-solid fa-window-maximize" style="color: var(--accent-color);"></i> Application View
+            </div>
+            <button class="exit-btn" onclick="closeViewport()">
+                <i class="fa-solid fa-circle-xmark"></i> Exit & Return
+            </button>
+        </div>
+        <iframe id="appFrame" src="" title="App Frame Window"></iframe>
+    </div>
+
+    <script>
+        const dashboard = document.getElementById('mainDashboard');
+        const viewport = document.getElementById('appViewport');
+        const iframe = document.getElementById('appFrame');
+        const titleText = document.getElementById('currentAppTitle');
+
+        function launchApp(fileString, displayName) {
+            // Point the iframe relative path directly to target your repository files
+            iframe.src = fileString;
+            titleText.innerHTML = `<i class="fa-solid fa-window-maximize" style="color: var(--accent-color);"></i> ${displayName}`;
+            
+            // Switch views
+            dashboard.classList.add('hidden');
+            viewport.classList.add('active');
+        }
+
+        function closeViewport() {
+            // Switch back views
+            viewport.classList.remove('active');
+            dashboard.classList.remove('hidden');
+            
+            // Unload frame safely to stop performance usage background scripts
+            iframe.src = "";
+        }
+
+        function showBtcAddress() {
+            // Replace with your real address when ready to deploy
+            alert("Bitcoin Donation Address placeholder:\n[Your Address Will Be Placed Here]");
+        }
+    </script>
+</body>
+</html>
