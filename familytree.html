@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tree ul {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            padding-top: 20px;
+            position: relative;
+            transition: transform 0.3s ease-in-out;
+        }
+        .tree ul::before, .tree ul::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 2px solid #6b7280;
+            height: 20px;
+            transform: translateX(-50%);
+        }
+        .tree li {
+            position: relative;
+            padding: 10px 5px 0 5px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 2px solid #6b7280;
+            width: 50%;
+            height: 20px;
+        }
+        .tree li::after {
+            left: 50%;
+            border-left: 2px solid #6b7280;
+        }
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+        .tree li:only-child {
+            padding-top: 0;
+        }
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        .tree li:last-child::before {
+            border-right: 2px solid #6b7280;
+            border-radius: 0 5px 0 0;
+        }
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+        .tree ul ul::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            border-left: 2px solid #6b7280;
+            height: 20px;
+            z-index: 10;
+        }
+        .person {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #d1d5db;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            z-index: 20;
+            min-width: 150px; /* Use min-width instead of fixed width */
+            max-width: 250px;
+            position: relative;
+        }
+        .person textarea {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            width: 100%;
+            min-height: 44px; /* Minimum height for text area */
+            resize: vertical; /* Allow vertical resizing */
+            text-align: center;
+            height: auto; /* Allow height to adjust */
+            font-size: 0.75rem; /* text-sm equivalent */
+        }
+        .person button {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .person button:hover {
+            background-color: #1d4ed8;
+        }
+        .relation-text {
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 0.625rem;
+            text-transform: uppercase;
+        }
+        .tree-container {
+            overflow: hidden;
+            padding: 1rem 0;
+            display: flex;
+            justify-content: center;
+            min-height: 80vh;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 30;
+            transition: background-color 0.2s;
+            line-height: 1;
+        }
+        .remove-btn:hover {
+            background-color: #dc2626;
+        }
+        #tree {
+            transform-origin: top center;
+        }
+        .zoom-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .zoom-buttons button {
+            background-color: #6b7280;
+            color: white;
+            border-radius: 9999px;
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        #zoomResetBtn {
+            font-size: 0.875rem; /* text-sm equivalent */
+            width: auto;
+            height: auto;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+        .zoom-buttons button:hover {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-8 sm:mb-12">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Family Tree Builder</h1>
+            <p class="text-gray-600 mt-2">Enter names and build your family tree. Select "This is me" to see the relationships!</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+            <button id="exportButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl shadow-lg transition-all transform hover:scale-105">
+                Export Tree
+            </button>
+            <div class="flex flex-col items-center">
+                <p class="text-gray-700 font-semibold mb-2">Select size</p>
+                <div class="zoom-buttons">
+                    <button id="zoomOutBtn" class="bg-gray-600 hover:bg-gray-700">-</button>
+                    <button id="zoomInBtn" class="bg-gray-600 hover:bg-gray-700">+</button>
+                    <button id="zoomResetBtn" class="bg-gray-600 hover:bg-gray-700">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="treeContainer" class="tree-container">
+            <div id="tree" class="tree"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script type="module">
+        // Helper function to create a unique ID
+        const generateId = () => Math.random().toString(36).substring(2, 9);
+
+        // Class to represent a person in the family tree
+        class Person {
+            constructor(name = '', parentId = null) {
+                this.id = generateId();
+                this.name = name;
+                this.parentId = parentId;
+                this.children = [];
+            }
+        }
+
+        let familyTreeData = new Person('Grandma & Grandpa');
+        let meId = null;
+
+        // Initialize the tree with 3 children as requested
+        for (let i = 0; i < 3; i++) {
+            familyTreeData.children.push(new Person('Child ' + (i + 1), familyTreeData.id));
+        }
+
+        const treeElement = document.getElementById('tree');
+        const exportButton = document.getElementById('exportButton');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomResetBtn = document.getElementById('zoomResetBtn');
+        
+        let currentScale = 1.0;
+
+        const updateZoom = () => {
+            treeElement.style.transform = `scale(${currentScale})`;
+        };
+
+        const fitTreeToScreen = () => {
+            const containerWidth = document.getElementById('treeContainer').offsetWidth;
+            const treeWidth = treeElement.scrollWidth;
+            if (treeWidth > containerWidth) {
+                currentScale = containerWidth / treeWidth;
+            } else {
+                currentScale = 1.0;
+            }
+            updateZoom();
+        };
+
+        zoomInBtn.addEventListener('click', () => {
+            if (currentScale < 2.0) {
+                currentScale += 0.1;
+                updateZoom();
+            }
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            if (currentScale > 0.5) {
+                currentScale -= 0.1;
+                updateZoom();
+            }
+        });
+
+        zoomResetBtn.addEventListener('click', () => {
+            fitTreeToScreen();
+        });
+
+        // Function to find a person in the tree by their ID
+        const findPersonById = (id, node = familyTreeData) => {
+            if (node.id === id) return node;
+            for (const child of node.children) {
+                const found = findPersonById(child, id);
+                if (found) return found;
+            }
+            return null;
+        };
+
+        // Function to find the path from a person to the root
+        const findPathToRoot = (id) => {
+            const path = [];
+            let currentNode = findPersonById(id);
+            while (currentNode) {
+                path.push(currentNode);
+                currentNode = findPersonById(currentNode.parentId);
+            }
+            return path;
+        };
+
+
+        // Function to get the relationship between two people
+        const getRelationship = (person1, person2) => {
+            if (!person1 || !person2 || person1.id === person2.id) {
+                return 'This is me!';
+            }
+
+            const path1 = findPathToRoot(person1.id);
+            const path2 = findPathToRoot(person2.id);
+
+            // Find the lowest common ancestor
+            let lca = null;
+            let i = path1.length - 1;
+            let j = path2.length - 1;
+            while (i >= 0 && j >= 0 && path1[i].id === path2[j].id) {
+                lca = path1[i];
+                i--;
+                j--;
+            }
+
+            const depth1 = path1.length - 1;
+            const depth2 = path2.length - 1;
+            const lcaDepth = findPathToRoot(lca.id).length - 1;
+
+            const dist1 = depth1 - lcaDepth;
+            const dist2 = depth2 - lcaDepth;
+
+            // Same generation
+            if (dist1 === dist2) {
+                if (dist1 === 1) { // Same parents
+                    return 'Sibling';
+                }
+                if (dist1 === 2) { // Grandparents are LCA
+                    return '1st Cousin';
+                }
+                if (dist1 === 3) {
+                    return '2nd Cousin';
+                }
+                if (dist1 === 4) {
+                    return '3rd Cousin';
+                }
+                return `${dist1 - 1}th Cousin`; // Fallback for higher cousins
+            }
+
+            // Different generations
+            if (dist1 === 0) { // person1 is an ancestor of person2
+                if (dist2 === 1) return 'Parent';
+                if (dist2 === 2) return 'Grandparent';
+                if (dist2 === 3) return 'Great Grandparent';
+                return `${dist2 - 1}x Great Grandparent`;
+            }
+
+            if (dist2 === 0) { // person2 is an ancestor of person1
+                if (dist1 === 1) return 'Child';
+                if (dist1 === 2) return 'Grandchild';
+                if (dist1 === 3) return 'Great Grandchild';
+                return `${dist1 - 1}x Great Grandchild`;
+            }
+
+            // Aunt/Uncle logic
+            if (dist1 === 1) {
+                if (dist2 === 2) return 'Nephew/Niece';
+                if (dist2 === 3) return 'Grandnephew/Grandniece';
+            }
+            if (dist2 === 1) {
+                if (dist1 === 2) return 'Aunt/Uncle';
+                if (dist1 === 3) return 'Great Aunt/Uncle';
+            }
+
+            // Cousin with 'removed' logic
+            const removed = Math.abs(dist1 - dist2);
+            const cousinNumber = Math.min(dist1, dist2) - 1;
+
+            if (removed === 0) {
+                 if (cousinNumber === 1) return 'Sibling';
+                 return `${cousinNumber}th Cousin`;
+            }
+            if (removed > 0) {
+                if (cousinNumber === 0) {
+                    return removed === 1 ? 'Aunt/Uncle' : `${removed-1}x Great Aunt/Uncle`;
+                }
+                return `${cousinNumber}nd Cousin, ${removed}x Removed`;
+            }
+            return 'Relative';
+        };
+
+        // Function to recursively render the tree
+        const renderTree = (data, parentEl) => {
+            const ul = document.createElement('ul');
+            parentEl.appendChild(ul);
+
+            data.children.forEach(person => {
+                const li = document.createElement('li');
+                li.setAttribute('data-id', person.id);
+
+                const personDiv = document.createElement('div');
+                personDiv.className = 'person';
+
+                // Add remove button
+                const removeBtn = document.createElement('div');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = 'x';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevents clicks from bubbling to other elements
+                    const parent = findPersonById(person.parentId);
+                    if (parent) {
+                        parent.children = parent.children.filter(child => child.id !== person.id);
+                        render();
+                    }
+                });
+                personDiv.appendChild(removeBtn);
+
+                // Name input field
+                const nameInput = document.createElement('textarea');
+                nameInput.placeholder = 'Enter name';
+                nameInput.value = person.name;
+                nameInput.className = 'text-center';
+                nameInput.addEventListener('input', (e) => {
+                    person.name = e.target.value;
+                    updateRelationships();
+                });
+                personDiv.appendChild(nameInput);
+
+                // Relationship text field
+                const relationText = document.createElement('p');
+                relationText.className = 'relation-text';
+                personDiv.appendChild(relationText);
+
+                // Checkbox for "This is me"
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.className = 'flex items-center gap-2 mt-2';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500';
+                checkbox.checked = meId === person.id;
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        meId = person.id;
+                        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                            if (cb !== e.target) {
+                                cb.checked = false;
+                            }
+                        });
+                    } else {
+                        meId = null;
+                    }
+                    updateRelationships();
+                });
+                checkboxWrapper.appendChild(checkbox);
+
+                const checkboxLabel = document.createElement('span');
+                checkboxLabel.textContent = 'This is me';
+                checkboxLabel.className = 'text-sm text-gray-600';
+                checkboxWrapper.appendChild(checkboxLabel);
+                personDiv.appendChild(checkboxWrapper);
+
+                // Add child button
+                const addButton = document.createElement('button');
+                addButton.textContent = 'Add Child';
+                addButton.className = 'mt-2';
+                addButton.addEventListener('click', () => {
+                    const newChild = new Person('', person.id);
+                    person.children.push(newChild);
+                    render();
+                });
+                personDiv.appendChild(addButton);
+
+                li.appendChild(personDiv);
+
+                if (person.children.length > 0) {
+                    renderTree(person, li);
+                }
+
+                ul.appendChild(li);
+            });
+        };
+
+        // Function to update the relationship text for all people
+        const updateRelationships = () => {
+            const allPeople = document.querySelectorAll('.person');
+            allPeople.forEach(el => {
+                const id = el.closest('li').getAttribute('data-id');
+                const person = findPersonById(id);
+                const relationEl = el.querySelector('.relation-text');
+
+                if (meId) {
+                    const mePerson = findPersonById(meId);
+                    const relation = getRelationship(person, mePerson);
+                    relationEl.textContent = relation;
+                    relationEl.style.display = 'block';
+                } else {
+                    relationEl.textContent = '';
+                    relationEl.style.display = 'none';
+                }
+            });
+        };
+
+        // The main render function
+        const render = () => {
+            treeElement.innerHTML = '';
+            const rootLi = document.createElement('li');
+            const rootDiv = document.createElement('div');
+            rootDiv.className = 'person';
+            rootDiv.setAttribute('data-id', familyTreeData.id);
+
+            const rootNameInput = document.createElement('textarea');
+            rootNameInput.placeholder = 'Enter name';
+            rootNameInput.value = familyTreeData.name;
+            rootNameInput.className = 'text-center';
+            rootNameInput.addEventListener('input', (e) => {
+                familyTreeData.name = e.target.value;
+                updateRelationships();
+            });
+            rootDiv.appendChild(rootNameInput);
+
+            const rootRelationText = document.createElement('p');
+            rootRelationText.className = 'relation-text';
+            rootDiv.appendChild(rootRelationText);
+
+            const rootAddButton = document.createElement('button');
+            rootAddButton.textContent = 'Add Child';
+            rootAddButton.className = 'mt-2';
+            rootAddButton.addEventListener('click', () => {
+                const newChild = new Person('', familyTreeData.id);
+                familyTreeData.children.push(newChild);
+                render();
+            });
+            rootDiv.appendChild(rootAddButton);
+
+            rootLi.appendChild(rootDiv);
+            treeElement.appendChild(rootLi);
+
+            if (familyTreeData.children.length > 0) {
+                renderTree(familyTreeData, rootLi);
+            }
+
+            updateRelationships();
+            fitTreeToScreen();
+        };
+
+        // Export button functionality
+        exportButton.addEventListener('click', () => {
+            const originalScale = currentScale;
+            const originalStyles = [];
+
+            // Temporarily reset styles to ensure full text visibility
+            const persons = document.querySelectorAll('.person');
+            const textareas = document.querySelectorAll('textarea');
+
+            persons.forEach((person, index) => {
+                originalStyles[index] = {
+                    maxWidth: person.style.maxWidth,
+                };
+                person.style.maxWidth = 'none';
+            });
+
+            textareas.forEach((textarea, index) => {
+                originalStyles[index].height = textarea.style.height;
+                originalStyles[index].overflow = textarea.style.overflow;
+                textarea.style.height = `${textarea.scrollHeight}px`;
+                textarea.style.overflow = 'visible';
+            });
+
+            // Temporarily reset scale to capture full-size tree
+            treeElement.style.transform = `scale(1.0)`;
+
+            setTimeout(() => {
+                html2canvas(document.getElementById('tree')).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'family_tree.jpeg';
+                    link.href = canvas.toDataURL('image/jpeg', 1.0);
+                    link.click();
+
+                    // Restore original state after capture
+                    treeElement.style.transform = `scale(${originalScale})`;
+                    persons.forEach((person, index) => {
+                        person.style.maxWidth = originalStyles[index].maxWidth;
+                    });
+                    textareas.forEach((textarea, index) => {
+                        textarea.style.height = originalStyles[index].height;
+                        textarea.style.overflow = originalStyles[index].overflow;
+                    });
+                });
+            }, 100);
+        });
+
+        // Add a resize listener to re-fit the tree when the window size changes
+        window.addEventListener('resize', fitTreeToScreen);
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
